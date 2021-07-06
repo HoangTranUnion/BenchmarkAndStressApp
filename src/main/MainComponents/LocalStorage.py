@@ -1,0 +1,157 @@
+from settings import VALID_CONFIG_KEYWORDS
+
+class LocalStorage:
+    '''
+    Stores all the information needed by the application.
+    Attributes:
+        - nameservers: The list of nameservers that are being tested
+        - nameservers_types: The dictionary of types of the nameservers. By default, this field is None
+        - domains: The list domains that are being used to resolve
+        - config: The configurations for the app.
+        - random: The list containing randomly generated links. By default, this is None.
+    '''
+    def __init__(self):
+        self.nameservers = []
+        self.nameservers_types = None
+        self.domain_types = ['valid','random','blocked']
+        errors = ['ServerDown','UnableToResolve']
+        self.default_domains = {key:[] for key in self.domain_types}
+        self.domains = self.default_domains
+        self.default_config = {key: 0 for key in VALID_CONFIG_KEYWORDS}
+        self.config = self.default_config
+        self.result = []
+        self.records = []
+        self.error_record = {err:[] for err in errors}
+        self.test_state = False
+
+    def add_nameserver(self, nameserver):
+        self.nameservers.append(nameserver)
+
+    def add_domain(self, domain, domain_type):
+        if domain_type not in self.domain_types:
+            raise KeyError("{} is an invalid key for domains".format(domain_type))
+        self.domains[domain_type].append(domain)
+
+    def add_nameservers(self, nameservers:list):
+        for nameserver in nameservers:
+            self.nameservers.append(nameserver)
+
+    def add_domains(self, domains:list, domain_type):
+        for domain in domains:
+            self.domains[domain_type].append(domain)
+
+    def add_domain_first(self, domain, domain_type):
+        self.domains[domain_type].insert(0, domain)
+
+    def add_nameserver_types(self, ns_dict):
+        self.nameservers_types = ns_dict
+
+    def add_domains_first(self, domains: list, domain_type):
+        new_dm = reversed(domains)
+        for elem in new_dm:
+            self.domains[domain_type].insert(0, elem)
+
+    def remove_nameserver(self, nameserver):
+        self.nameservers.remove(nameserver)
+
+    def remove_all_nameservers(self):
+        self.nameservers.clear()
+
+    def remove_domains(self, domain, domain_type):
+        self.domains[domain_type].remove(domain)
+
+    def remove_all_domains(self, type):
+        self.domains[type].clear()
+
+    def replace_nameservers(self, new_nameser_set):
+        self.nameservers = new_nameser_set
+
+    def replace_domains(self, new_dom_set):
+        self.domains = new_dom_set
+
+    def modify_nameserver(self, original, modified):
+        ori_index = self.nameservers.index(original)
+        ori = self.nameservers.pop(ori_index)
+        self.nameservers.insert(ori_index, modified)
+
+    def modify_domain(self, domain_type, original, modified):
+        ori_index = self.domains[domain_type].index(original)
+        ori = self.domains[domain_type].pop(ori_index)
+        self.domains[domain_type].insert(ori_index, modified)
+
+    def get_domains(self):
+        return self.domains
+
+    def get_domain_by_section(self, section):
+        return self.domains[section]
+
+    def get_valid_domains(self):
+        return self.domains['valid']
+
+    def get_random_domains(self):
+        return self.domains['random']
+
+    def get_blocked_domains(self):
+        return self.domains['blocked']
+
+    def get_nameservers(self):
+        return self.nameservers
+
+    def get_all(self):
+        return self.nameservers, self.domains
+
+    def store_results(self, results):
+        self.result.append(results)
+
+    def store_records(self, records):
+        self.records.append(records)
+
+    def _mod_test_results(self):
+        ret_records = {}
+        ret_results = {}
+        for i in range(len(self.result)):
+            for key in self.result[i]:
+                if key not in ret_results:
+                    ret_results[key] = {}
+                ret_results[key].update(self.result[i][key])
+            for key in self.records[i]:
+                if key not in ret_records:
+                    ret_records[key] = {}
+                ret_records[key].update(self.records[i][key])
+        return ret_results, ret_records
+
+    def get_test_results(self):
+        return self._mod_test_results()
+
+    def get_nameserver_types(self):
+        return self.nameservers_types
+
+    def modify_config(self, keyword, value):
+        if keyword not in VALID_CONFIG_KEYWORDS:
+            raise KeyError("{} is an invalid keyword".format(keyword))
+        self.config[keyword] = value
+
+    def get_config(self):
+        return self.config
+
+    @property
+    def cur_test_state(self):
+        return self.test_state
+
+    @cur_test_state.setter
+    def cur_test_state(self, state):
+        self.test_state = state
+
+    def update_server_down(self, nameserver):
+        if nameserver not in self.error_record['ServerDown']:
+            self.error_record['ServerDown'].append(nameserver)
+
+    def get_server_down_nameservers(self):
+        return self.error_record['ServerDown']
+
+    def clear_server_down_nameservers(self):
+        self.error_record['ServerDown'].clear()
+
+    def reset(self):
+        self.domains = self.default_domains
+        self.config = self.default_config
