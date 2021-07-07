@@ -19,7 +19,7 @@ def calculate_res(result_dict, record_dict):
         entry_max, entry_min, avg, std = result_dict[entry_key]
         if entry_max > max_:
             max_ = entry_max
-        if entry_min < min_ and entry_min != 0:
+        if entry_min < min_ and avg != 0:
             min_ = entry_min
 
     all_entries = [list(list(record_dict.values())[i].values())[0][1] for i in range(len(list(record_dict.items()))) if len(record_dict[list(record_dict.keys())[i]][0][1]) != 0]

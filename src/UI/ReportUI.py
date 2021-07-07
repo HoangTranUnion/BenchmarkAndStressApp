@@ -26,7 +26,9 @@ class Ui_MainWindow(object):
         self.purpose = purpose
         self.err_ns = self.storage.get_server_down_nameservers()
         data :dict = self.storage.get_test_results()
+        print(data)
         self.reporting_data = self.cal(data)
+        print(self.reporting_data)
         self.ns_info = self.storage.get_nameserver_types()
 
     def cal(self,data):
@@ -100,15 +102,10 @@ class Ui_MainWindow(object):
             folder_selection = DEFAULT_RESULTS_LOC
 
         cur_day = datetime.date.today().strftime("%Y%m%d")
-        folder = os.path.join(folder_selection, cur_day)
-        try:
-            os.mkdir(folder, mode = 0o777)
-        except FileExistsError:
-            pass
 
         cur_time = datetime.datetime.now().strftime('%H%M%S')
-        report_file = "Report_{}_{}.xls".format(self.purpose, cur_time)
-        full_report_dir = os.path.join(folder, report_file)
+        report_file = "Report_{}_{}_{}.xls".format(self.purpose, cur_day, cur_time)
+        full_report_dir = os.path.join(folder_selection, report_file)
 
         wb = xlwt.Workbook()
         sheet1 = wb.add_sheet("Report")
