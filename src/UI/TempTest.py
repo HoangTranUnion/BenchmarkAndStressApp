@@ -90,9 +90,12 @@ class Ui_MainWindow(object):
         except AttributeError:
             pass
         self.check_for_errors()
+
+        self.result_storage = self.storage.copy_results()
+
         if len(self.storage.get_nameservers()) - len(self.storage.get_server_down_nameservers()) != 0:
-            self.new_window = ReportWindow(self.storage)
-            self.res_ui = ReportUI.Ui_MainWindow(self.storage,purpose)
+            self.new_window = ReportWindow(self.result_storage)
+            self.res_ui = ReportUI.Ui_MainWindow(self.result_storage,purpose)
             self.res_ui.setupUi(self.new_window)
             self.new_window.show()
         else:
@@ -110,6 +113,7 @@ class Ui_MainWindow(object):
         self.worker_2.finished.connect(lambda: self.openReport('stress'))
 
     def _benchmark(self):
+        self.storage.reset()
         anotherRunning = self.storage.cur_test_state
         if anotherRunning:
             self.error_dialog = QtWidgets.QErrorMessage()
@@ -126,40 +130,57 @@ class Ui_MainWindow(object):
             self.bench_props_ui.buttonBox.rejected.connect(self.reject)
 
     def reject(self):
-        self.storage.cur_test_state(False)
+        self.storage.cur_test_state = False
 
     def accept_bench(self, text, dialog):
-        dialog.close()
         if len(text) != 0 and text.isdigit():
+            print(text)
             self.storage.modify_config('domains_used', int(text))
 
-        self.modify_data(self.storage.get_config()['domains_used'])
-        try:
-            toaster = ToastNotifier()
-            toaster.show_toast(title="Starting benchmarking!", msg="Please wait",
-                                   icon_path=YANFEI_SMUG,
-                                   duration=1, threaded=True)
-        except AttributeError:
-            pass
+            valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-        self.worker_b = WorkerTest(self.nameserver_data, [self._valid_data, self._random_data, self._blocked_data],
-                                       self.storage, 1)
-        self.worker_b.start()
-        self.worker_b.finished.connect(lambda: self.openReport('benchmark'))
+            try:
+                toaster = ToastNotifier()
+                toaster.show_toast(title="Starting benchmarking!", msg="Please wait",
+                                       icon_path=YANFEI_SMUG,
+                                       duration=1, threaded=True)
+            except AttributeError:
+                pass
+
+            self.worker_b = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+                                           self.storage, 1)
+            self.worker_b.start()
+            self.worker_b.finished.connect(lambda: self.openReport('benchmark'))
+
+        else:
+            self.error_dialog = QtWidgets.QErrorMessage()
+            self.error_dialog.setWindowTitle('Warning')
+            self.error_dialog.showMessage('Please type a number.')
+            self.error_dialog.exec_()
+            dialog.show()
 
     def modify_data(self, required_number):
-        if len(self._valid_data) < required_number and len(self._valid_data) != 0:
-            self._mod(self._valid_data, required_number)
-        elif len(self._valid_data) != 0:
-            self._valid_data = self._valid_data[:required_number]
-        if len(self._random_data) < required_number and len(self._random_data) != 0:
-            self._mod(self._random_data, required_number)
-        elif len(self._random_data) != 0:
-            self._random_data = self._random_data[:required_number]
-        if len(self._blocked_data) < required_number and len(self._blocked_data) != 0:
-            self._mod(self._blocked_data, required_number)
-        elif len(self._blocked_data) != 0:
-            self._blocked_data = self._blocked_data[:required_number]
+        if required_number == 0:
+            return [],[],[]
+        else:
+            valid_data = self._valid_data.copy()
+            random_data = self._random_data.copy()
+            blocked_data = self._blocked_data.copy()
+
+            if len(self._valid_data) < required_number and len(self._valid_data) != 0:
+                valid_data = self._mod(self._valid_data, required_number)
+            else:
+                valid_data = valid_data[:required_number]
+            if len(self._random_data) < required_number and len(self._random_data) != 0:
+                random_data =self._mod(self._random_data, required_number)
+            else:
+                random_data = random_data[:required_number]
+            if len(self._blocked_data) < required_number and len(self._blocked_data) != 0:
+                blocked_data = self._mod(self._blocked_data, required_number)
+            else:
+                blocked_data = blocked_data[:required_number]
+
+            return valid_data, random_data, blocked_data
 
     def _mod(self, mod_list:list, req_num):
         # So now we are duplicating the list.
@@ -167,17 +188,21 @@ class Ui_MainWindow(object):
         mul_times = req_num // len(mod_list)
         mod = req_num % len(mod_list)
         mod_list_copy = mod_list.copy()
+        new_mod_list = mod_list.copy()
 
         if mul_times == 1:
             if mod != 0:
-                mod_list.extend(mod_list_copy[: mod])
+                new_mod_list.extend(mod_list_copy[: mod])
         else:
             for t in range(mul_times):
-                mod_list.extend(mod_list_copy)
+                new_mod_list.extend(mod_list_copy)
             if mod != 0:
-                mod_list.extend(mod_list_copy[:mod])
+                new_mod_list.extend(mod_list_copy[:mod])
+
+        return new_mod_list
 
     def _stress(self):
+        self.storage.reset()
         anotherRunning = self.storage.cur_test_state
         if anotherRunning:
             self.error_dialog = QtWidgets.QErrorMessage()
@@ -198,30 +223,42 @@ class Ui_MainWindow(object):
             self.stress_props_ui.buttonBox.rejected.connect(self.reject)
 
     def accept_stress(self, instance_count_txt, domain_amt_txt, dialog):
-        dialog.close()
+
         if len(domain_amt_txt) != 0 and domain_amt_txt.isdigit():
             self.storage.modify_config('domains_used', int(domain_amt_txt))
-        if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
-            self.storage.modify_config('instance_count', int(instance_count_txt))
+            if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
+                dialog.close()
+                self.storage.modify_config('instance_count', int(instance_count_txt))
 
-        self.modify_data(self.storage.get_config()['domains_used'])
+                valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-        self.instance_count = self.storage.get_config()['instance_count']
+                self.instance_count = self.storage.get_config()['instance_count']
 
-        try:
-            toaster = ToastNotifier()
-            toaster.show_toast(title="Starting stressing!", msg="Please wait",
+                try:
+                    toaster = ToastNotifier()
+                    toaster.show_toast(title="Starting stressing!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=1, threaded=True)
-        except AttributeError:
-            pass
+                except AttributeError:
+                    pass
 
-        self.worker_s = WorkerTest(self.nameserver_data, [self._valid_data, self._random_data, self._blocked_data],
+                self.worker_s = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
                                    self.storage, self.instance_count)
-        self.worker_s.start()
-        self.worker_s.finished.connect(lambda: self.openReport('stress'))
+                self.worker_s.start()
+                self.worker_s.finished.connect(lambda: self.openReport('stress'))
+            else:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please type a number for the number of instances')
+                self.error_dialog.exec_()
+        else:
+            self.error_dialog = QtWidgets.QErrorMessage()
+            self.error_dialog.setWindowTitle('Warning')
+            self.error_dialog.showMessage('Please type a number for the number of domains')
+            self.error_dialog.exec_()
 
     def both(self):
+        self.storage.reset()
         anotherRunning = self.storage.cur_test_state
         if anotherRunning:
             self.error_dialog = QtWidgets.QErrorMessage()
@@ -241,30 +278,39 @@ class Ui_MainWindow(object):
                                                self.dialog_both))
             self.both_props_ui.buttonBox.rejected.connect(self.reject)
 
-
     def accept_both(self, instance_count_txt, domain_amt_txt, dialog):
         dialog.close()
         if len(domain_amt_txt) != 0 and domain_amt_txt.isdigit():
             self.storage.modify_config('domains_used', int(domain_amt_txt))
-        if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
-            self.storage.modify_config('instance_count', int(instance_count_txt))
+            if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
+                self.storage.modify_config('instance_count', int(instance_count_txt))
 
-        self.modify_data(self.storage.get_config()['domains_used'])
+                valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-        self.instance_count = self.storage.get_config()['instance_count']
+                self.instance_count = self.storage.get_config()['instance_count']
 
-        try:
-            toaster = ToastNotifier()
-            toaster.show_toast(title="Starting both tests!", msg="Please wait",
+                try:
+                    toaster = ToastNotifier()
+                    toaster.show_toast(title="Starting both tests!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=1, threaded=True)
-        except AttributeError:
-            pass
+                except AttributeError:
+                    pass
 
-        self.worker_both_1 = WorkerTest(self.nameserver_data, [self._valid_data, self._random_data, self._blocked_data],
+                self.worker_both_1 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
                                    self.storage, 1)
-        self.worker_both_1.start()
-        self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', self.instance_count))
+                self.worker_both_1.start()
+                self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', self.instance_count))
+            else:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please type a number for the number of instances')
+                self.error_dialog.exec_()
+        else:
+            self.error_dialog = QtWidgets.QErrorMessage()
+            self.error_dialog.setWindowTitle('Warning')
+            self.error_dialog.showMessage('Please type a number for the number of domains')
+            self.error_dialog.exec_()
 
 class WorkerTest(QtCore.QThread):
     def __init__(self, nameserver, data_list, storage, inst_count):
@@ -309,7 +355,6 @@ class ReportWindow(QtWidgets.QMainWindow):
 
     def closeEvent(self, a0):
         self.storage.clear_server_down_nameservers()
-        self.storage.reset()
         a0.accept()
 
 if __name__ == "__main__":

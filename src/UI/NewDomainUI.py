@@ -187,7 +187,8 @@ class Ui_MainWindow(object):
         dialog.close()
         content = content.replace(" ", "")
         key_to_change, val_to_change = list(select_dict.items())[0]
-        self.storage.modify_domain(key_to_change,val_to_change[0].text(), content)
+        if len(content) != 0:
+            self.storage.modify_domain(key_to_change,val_to_change[0].text(), content)
         self.refresh(key_to_change)
 
     def refresh(self, key):

@@ -22,7 +22,6 @@ from settings import DEFAULT_RESULTS_LOC
 class Ui_MainWindow(object):
     def __init__(self, storage: LocalStorage, purpose: str):
         self.storage = storage
-        self.config = self.storage.get_config()
         # self.save_loc = DEFAULT_RESULTS_LOC
         self.purpose = purpose
         self.err_ns = self.storage.get_server_down_nameservers()

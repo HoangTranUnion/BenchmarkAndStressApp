@@ -1,4 +1,5 @@
 from settings import VALID_CONFIG_KEYWORDS
+import copy
 
 class LocalStorage:
     '''
@@ -153,5 +154,26 @@ class LocalStorage:
         self.error_record['ServerDown'].clear()
 
     def reset(self):
-        self.domains = self.default_domains
+        self.result.clear()
+        self.records.clear()
         self.config = self.default_config
+
+    def copy_results(self):
+        new_ls = LocalStorage()
+        new_ls.add_nameserver_types(copy.deepcopy(self.nameservers_types))
+        for ns in self.error_record['ServerDown']:
+            new_ls.update_server_down(ns)
+
+        for result in self.result:
+            new_ls.store_results(result)
+        for record in self.records:
+            new_ls.store_records(record)
+        return new_ls
+
+
+if __name__ == "__main__":
+    ls = LocalStorage()
+    ls.add_nameservers(['1.1.1.1','8.8.8.8'])
+    ls.add_domains(['abc.com'],'valid')
+    print(ls.get_nameservers())
+    print(ls.get_config())
