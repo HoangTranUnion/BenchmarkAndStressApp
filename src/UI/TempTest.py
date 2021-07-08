@@ -224,38 +224,32 @@ class Ui_MainWindow(object):
 
     def accept_stress(self, instance_count_txt, domain_amt_txt, dialog):
 
-        if len(domain_amt_txt) != 0 and domain_amt_txt.isdigit():
+        if (len(domain_amt_txt) != 0 and domain_amt_txt.isdigit()) and (len(instance_count_txt) != 0 and instance_count_txt.isdigit()):
             self.storage.modify_config('domains_used', int(domain_amt_txt))
-            if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
-                dialog.close()
-                self.storage.modify_config('instance_count', int(instance_count_txt))
+            self.storage.modify_config('instance_count', int(instance_count_txt))
 
-                valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
+            valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-                self.instance_count = self.storage.get_config()['instance_count']
+            self.instance_count = self.storage.get_config()['instance_count']
 
-                try:
-                    toaster = ToastNotifier()
-                    toaster.show_toast(title="Starting stressing!", msg="Please wait",
+            try:
+                toaster = ToastNotifier()
+                toaster.show_toast(title="Starting stressing!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=1, threaded=True)
-                except AttributeError:
-                    pass
+            except AttributeError:
+                pass
 
-                self.worker_s = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+            self.worker_s = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
                                    self.storage, self.instance_count)
-                self.worker_s.start()
-                self.worker_s.finished.connect(lambda: self.openReport('stress'))
-            else:
-                self.error_dialog = QtWidgets.QErrorMessage()
-                self.error_dialog.setWindowTitle('Warning')
-                self.error_dialog.showMessage('Please type a number for the number of instances')
-                self.error_dialog.exec_()
+            self.worker_s.start()
+            self.worker_s.finished.connect(lambda: self.openReport('stress'))
         else:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
-            self.error_dialog.showMessage('Please type a number for the number of domains')
+            self.error_dialog.showMessage('Please type a number for the number of domains and instances')
             self.error_dialog.exec_()
+            dialog.show()
 
     def both(self):
         self.storage.reset()
@@ -279,38 +273,33 @@ class Ui_MainWindow(object):
             self.both_props_ui.buttonBox.rejected.connect(self.reject)
 
     def accept_both(self, instance_count_txt, domain_amt_txt, dialog):
-        dialog.close()
-        if len(domain_amt_txt) != 0 and domain_amt_txt.isdigit():
+        if (len(domain_amt_txt) != 0 and domain_amt_txt.isdigit()) and (len(instance_count_txt) != 0 and instance_count_txt.isdigit()):
             self.storage.modify_config('domains_used', int(domain_amt_txt))
-            if len(instance_count_txt) != 0 and instance_count_txt.isdigit():
-                self.storage.modify_config('instance_count', int(instance_count_txt))
 
-                valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
+            self.storage.modify_config('instance_count', int(instance_count_txt))
 
-                self.instance_count = self.storage.get_config()['instance_count']
+            valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-                try:
-                    toaster = ToastNotifier()
-                    toaster.show_toast(title="Starting both tests!", msg="Please wait",
+            self.instance_count = self.storage.get_config()['instance_count']
+
+            try:
+                toaster = ToastNotifier()
+                toaster.show_toast(title="Starting both tests!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=1, threaded=True)
-                except AttributeError:
-                    pass
+            except AttributeError:
+                pass
 
-                self.worker_both_1 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+            self.worker_both_1 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
                                    self.storage, 1)
-                self.worker_both_1.start()
-                self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', self.instance_count))
-            else:
-                self.error_dialog = QtWidgets.QErrorMessage()
-                self.error_dialog.setWindowTitle('Warning')
-                self.error_dialog.showMessage('Please type a number for the number of instances')
-                self.error_dialog.exec_()
+            self.worker_both_1.start()
+            self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', self.instance_count))
         else:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
-            self.error_dialog.showMessage('Please type a number for the number of domains')
+            self.error_dialog.showMessage('Please type a number for the number of domains and instances')
             self.error_dialog.exec_()
+            dialog.show()
 
 class WorkerTest(QtCore.QThread):
     def __init__(self, nameserver, data_list, storage, inst_count):

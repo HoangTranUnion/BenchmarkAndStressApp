@@ -19,6 +19,6 @@ if __name__ == '__main__':
     # for file in list_of_modified_files:
     #     convert(os.path.join(UI_SKETCH_FOLDER,file))
 
-    convert(os.path.join(UI_SKETCH_FOLDER, 'Debug_Dialog.ui'))
+    convert(os.path.join(UI_SKETCH_FOLDER, 'ExitConfirmation.ui'))
 
 

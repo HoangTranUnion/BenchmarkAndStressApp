@@ -26,9 +26,7 @@ class Ui_MainWindow(object):
         self.purpose = purpose
         self.err_ns = self.storage.get_server_down_nameservers()
         data :dict = self.storage.get_test_results()
-        print(data)
         self.reporting_data = self.cal(data)
-        print(self.reporting_data)
         self.ns_info = self.storage.get_nameserver_types()
 
     def cal(self,data):
