@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtWidgets, Qt
 from src.main.MainComponents.LocalStorage import LocalStorage
-from src.UI import SetNameserver, AddNameserver
+from src.UI import SetNameserver, AddNameserver_Dialog
 import random
 
 
@@ -64,13 +64,12 @@ class Ui_MainWindow(object):
         self.pushButton_5.clicked.connect(self.openDialog)
 
     def openWindow(self):
-        self.window = QtWidgets.QMainWindow()
-        self.ui = AddNameserver.Ui_MainWindow()
+        self.window = QtWidgets.QDialog()
+        self.ui = AddNameserver_Dialog.Ui_Dialog()
         self.ui.setupUi(self.window)
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
-        self.window.show()
-
         self.ui.pushButton.clicked.connect(lambda: self.addContent(self.ui.lineEdit.text()))
+        self.window.exec_()
 
     def openDialog(self):
         if len(self.listWidget.selectedItems()) == 0:
@@ -87,9 +86,9 @@ class Ui_MainWindow(object):
             self.dialog = QtWidgets.QDialog()
             self.ui = SetNameserver.Ui_Dialog()
             self.ui.setupUi(self.dialog)
-            self.dialog.show()
             self.ui.lineEdit_2.setText(self.listWidget.selectedItems()[0].text())
             self.ui.buttonBox.accepted.connect(lambda: self.modifyContent(self.dialog, self.ui.lineEdit_2.text()))
+            self.dialog.exec_()
 
     def addContent(self, content):
         content_list = content.split(";")

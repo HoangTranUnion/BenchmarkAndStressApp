@@ -18,8 +18,8 @@ class LocalStorage:
         errors = ['ServerDown','UnableToResolve']
         self.default_domains = {key:[] for key in self.domain_types}
         self.domains = self.default_domains
-        self.default_config = {key: 0 for key in VALID_CONFIG_KEYWORDS}
-        self.config = self.default_config
+        self.default_config = {'instance_count': [], 'domains_used':0}
+        self.config = copy.deepcopy(self.default_config)
         self.result = []
         self.records = []
         self.error_record = {err:[] for err in errors}

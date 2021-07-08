@@ -146,65 +146,72 @@ class DNS:
             "Stress testing {} over {} concurrent instances and {} links per instance".format(self.dns_info, instance_count,
                                                                                               len(domain_list)))
         storage_dict[self.dns_info] = {data_type:{}}
-        threads = []
-        for n in range(int(instance_count)):
-            process = Thread(target= self._single_run, args=[domain_list, n, storage_dict, data_type, storage])
-            process.start()
-            threads.append(process)
 
-        for process in threads:
-            process.join()
+        if int(instance_count) != 0:
+            threads = []
+            for n in range(int(instance_count)):
+                process = Thread(target= self._single_run, args=[domain_list, n, storage_dict, data_type, storage])
+                process.start()
+                threads.append(process)
 
-        overall_max = 0
-        overall_min = np.inf
+            for process in threads:
+                process.join()
 
-        max_length = 0
-        min_length = np.inf
-        total_sum = 0
-        total_length = 0
-        all_norm_entries = []
+            overall_max = 0
+            overall_min = np.inf
 
-        for k in storage_dict[self.dns_info][data_type].keys():
-            entry = storage_dict[self.dns_info][data_type][k][1]
-            all_norm_entries.append(entry)
-            try:
-                max_ = max(entry)
-                min_ = min(entry)
-                sum_ = sum(entry)
+            max_length = 0
+            min_length = np.inf
+            total_sum = 0
+            total_length = 0
+            all_norm_entries = []
 
-                length = len(entry)
-                if length > max_length:
-                    max_length = length
-                if length < min_length:
-                    min_length = length
+            for k in storage_dict[self.dns_info][data_type].keys():
+                entry = storage_dict[self.dns_info][data_type][k][1]
+                all_norm_entries.append(entry)
+                try:
+                    max_ = max(entry)
+                    min_ = min(entry)
+                    sum_ = sum(entry)
 
-                if max_ > overall_max:
-                    overall_max = max_
-                if min_ < overall_min:
-                    overall_min = min_
+                    length = len(entry)
+                    if length > max_length:
+                        max_length = length
+                    if length < min_length:
+                        min_length = length
 
-                total_sum += sum_
-                total_length += length
+                    if max_ > overall_max:
+                        overall_max = max_
+                    if min_ < overall_min:
+                        overall_min = min_
 
-            except ValueError:
-                pass
+                    total_sum += sum_
+                    total_length += length
 
-        if overall_min == np.inf:
-            overall_min = 0
-            std_dev = 0
+                except ValueError:
+                    pass
+
+            if overall_min == np.inf:
+                overall_min = 0
+                std_dev = 0
+            else:
+                # all_norm_entries WILL have irregular shapes. This is due to the fact that not all links can be resolved
+                # To be able to calculate the std deviation of all_norm_entries, I use np.hstack (horizontal stack)
+                # dtype = object is here due to deprecation warning.
+                std_dev = np.std(np.hstack(np.asarray(all_norm_entries,dtype=object)))
+            if total_length == 0:
+                overall_avg = 0
+            else:
+                overall_avg = total_sum / total_length
+            stats_dict[self.dns_info][data_type] = (overall_max, overall_min, overall_avg, std_dev)
         else:
-            # all_norm_entries WILL have irregular shapes. This is due to the fact that not all links can be resolved
-            # To be able to calculate the std deviation of all_norm_entries, I use np.hstack (horizontal stack)
-            # dtype = object is here due to deprecation warning.
-            std_dev = np.std(np.hstack(np.asarray(all_norm_entries,dtype=object)))
-        if total_length == 0:
-            overall_avg = 0
-        else:
-            overall_avg = total_sum / total_length
-        stats_dict[self.dns_info][data_type] = (overall_max, overall_min, overall_avg, std_dev)
+            stats_dict[self.dns_info][data_type] = (0,0,0,0)
 
     def __eq__(self, other):
         if isinstance(other, DNS):
             if self.dns_info == other.dns_info:
                 return True
         return False
+
+if __name__ == '__main__':
+    print(DNS(dns_ip='1.1.1.1').stress(['google.com'],{}, {'1.1.1.1':{'valid':()}}, 'valid',LocalStorage(), 0))

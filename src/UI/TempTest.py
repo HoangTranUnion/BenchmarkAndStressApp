@@ -19,6 +19,9 @@ from settings import YANFEI_SMUG
 
 
 class Ui_MainWindow(object):
+    DOMAIN_DEFAULT_AMT_STR = '50'
+    INSTANCE_DEFAULT_AMT_STR = '0'
+
     def __init__(self, local_storage: LocalStorage):
         self.storage = local_storage
         self.testing_data = self.storage.get_all()
@@ -32,6 +35,7 @@ class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
         MainWindow.setFixedSize(311, 332)
+        # MainWindow.setAttribute(QtCore.Qt.WA_DeleteOnClose, True)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton = QtWidgets.QPushButton(self.centralwidget)
@@ -86,7 +90,7 @@ class Ui_MainWindow(object):
             toaster = ToastNotifier()
             toaster.show_toast(title="Finished {}!".format(purpose + "ing"), msg="Please check the app :smug:",
                                        icon_path=YANFEI_SMUG,
-                                       duration=5, threaded=True)
+                                       duration=15, threaded=True)
         except AttributeError:
             pass
         self.check_for_errors()
@@ -101,14 +105,15 @@ class Ui_MainWindow(object):
         else:
             self.storage.clear_server_down_nameservers()
 
-    def secondAction(self, purpose, stress_instance):
+    def secondAction(self, purpose, data, stress_instance):
+        valid_test, random_test, blocked_test = data
         if len(self.storage.get_nameservers()) - len(self.storage.get_server_down_nameservers()) != 0:
             self.window_b = ReportWindow(self.storage)
             self.b_ui = ReportUI.Ui_MainWindow(self.storage, purpose)
             self.b_ui.setupUi(self.window_b)
             self.window_b.show()
 
-        self.worker_2 = WorkerTest(self.nameserver_data, [self._valid_data, self._random_data, self._blocked_data], self.storage, stress_instance)
+        self.worker_2 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test], self.storage, stress_instance)
         self.worker_2.start()
         self.worker_2.finished.connect(lambda: self.openReport('stress'))
 
@@ -125,33 +130,38 @@ class Ui_MainWindow(object):
             self.dialog_b = Dialog(self.storage)
             self.bench_props_ui = Benchmark_Properties.Ui_Dialog()
             self.bench_props_ui.setupUi(self.dialog_b)
-            self.dialog_b.show()
-            self.bench_props_ui.buttonBox.accepted.connect(lambda: self.accept_bench(self.bench_props_ui.lineEdit.text(), self.dialog_b))
+            self.bench_props_ui.buttonBox.accepted.connect(
+                lambda: self.accept_bench(self.bench_props_ui.lineEdit.text(), self.dialog_b))
             self.bench_props_ui.buttonBox.rejected.connect(self.reject)
+            self.dialog_b.show()
 
     def reject(self):
         self.storage.cur_test_state = False
 
+    def _start_bench(self, no_domains):
+        self.storage.modify_config('domains_used', no_domains)
+
+        valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
+
+        try:
+            toaster = ToastNotifier()
+            toaster.show_toast(title="Starting benchmarking!", msg="Please wait",
+                               icon_path=YANFEI_SMUG,
+                               duration=5, threaded=True)
+        except AttributeError:
+            pass
+
+        self.worker_b = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+                                   self.storage, [1, 1, 1])
+        self.worker_b.start()
+        self.worker_b.finished.connect(lambda: self.openReport('benchmark'))
+
     def accept_bench(self, text, dialog):
-        if len(text) != 0 and text.isdigit():
-            print(text)
-            self.storage.modify_config('domains_used', int(text))
-
-            valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
-
-            try:
-                toaster = ToastNotifier()
-                toaster.show_toast(title="Starting benchmarking!", msg="Please wait",
-                                       icon_path=YANFEI_SMUG,
-                                       duration=1, threaded=True)
-            except AttributeError:
-                pass
-
-            self.worker_b = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
-                                           self.storage, 1)
-            self.worker_b.start()
-            self.worker_b.finished.connect(lambda: self.openReport('benchmark'))
-
+        text = text.strip().replace(" ","")
+        if len(text) == 0:
+            text = self.DOMAIN_DEFAULT_AMT_STR
+        if self._verify_input(text):
+            self._start_bench(int(text))
         else:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
@@ -214,19 +224,36 @@ class Ui_MainWindow(object):
             self.dialog_s = Dialog(self.storage)
             self.stress_props_ui = Stress_Properties.Ui_Dialog()
             self.stress_props_ui.setupUi(self.dialog_s)
-            self.dialog_s.show()
-
             self.stress_props_ui.buttonBox.accepted.connect(
-                lambda: self.accept_stress(self.stress_props_ui.lineEdit.text(),
-                                           self.stress_props_ui.lineEdit_2.text(),
+                lambda: self.accept_stress(self.stress_props_ui.validEdit.text(),
+                                           self.stress_props_ui.RandomEdit.text(),
+                                           self.stress_props_ui.BlockedEdit.text(),
+                                           self.stress_props_ui.DomainEdit.text(),
                                            self.dialog_s))
             self.stress_props_ui.buttonBox.rejected.connect(self.reject)
+            self.dialog_s.show()
 
-    def accept_stress(self, instance_count_txt, domain_amt_txt, dialog):
+    def _verify_input(self, txt):
+        return len(txt) != 0 and txt.isdigit()
 
-        if (len(domain_amt_txt) != 0 and domain_amt_txt.isdigit()) and (len(instance_count_txt) != 0 and instance_count_txt.isdigit()):
+    def accept_stress(self, valid_ic_txt, random_ic_txt, blocked_ic_txt, domain_amt_txt, dialog):
+        if len(valid_ic_txt) == 0:
+            valid_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(random_ic_txt) == 0:
+            random_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(blocked_ic_txt) == 0:
+            blocked_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(domain_amt_txt) == 0:
+            domain_amt_txt = self.DOMAIN_DEFAULT_AMT_STR
+
+        valid_ic_txt = valid_ic_txt.strip().replace(" ","")
+        random_ic_txt = random_ic_txt.strip().replace(" ", "")
+        blocked_ic_txt = blocked_ic_txt.strip().replace(" ", "")
+        domain_amt_txt = domain_amt_txt.strip().replace(" ", "")
+
+        if self._verify_input(valid_ic_txt) and self._verify_input(random_ic_txt) and self._verify_input(blocked_ic_txt) and self._verify_input(domain_amt_txt):
             self.storage.modify_config('domains_used', int(domain_amt_txt))
-            self.storage.modify_config('instance_count', int(instance_count_txt))
+            self.storage.modify_config('instance_count', [int(valid_ic_txt), int(random_ic_txt), int(blocked_ic_txt)])
 
             valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
@@ -236,7 +263,7 @@ class Ui_MainWindow(object):
                 toaster = ToastNotifier()
                 toaster.show_toast(title="Starting stressing!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
-                               duration=1, threaded=True)
+                               duration=5, threaded=True)
             except AttributeError:
                 pass
 
@@ -264,19 +291,34 @@ class Ui_MainWindow(object):
             self.dialog_both = Dialog(self.storage)
             self.both_props_ui = Stress_Properties.Ui_Dialog()
             self.both_props_ui.setupUi(self.dialog_both)
+            self.both_props_ui.buttonBox.accepted.connect(
+                lambda: self.accept_both(self.both_props_ui.validEdit.text(),
+                                         self.both_props_ui.RandomEdit.text(),
+                                         self.both_props_ui.BlockedEdit.text(),
+                                         self.both_props_ui.DomainEdit.text(),
+                                         self.dialog_both))
+            self.both_props_ui.buttonBox.rejected.connect(self.reject)
             self.dialog_both.show()
 
-            self.both_props_ui.buttonBox.accepted.connect(
-                lambda: self.accept_both(self.both_props_ui.lineEdit.text(),
-                                               self.both_props_ui.lineEdit_2.text(),
-                                               self.dialog_both))
-            self.both_props_ui.buttonBox.rejected.connect(self.reject)
+    def accept_both(self, valid_ic_txt, random_ic_txt, blocked_ic_txt, domain_amt_txt, dialog):
+        if len(valid_ic_txt) == 0:
+            valid_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(random_ic_txt) == 0:
+            random_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(blocked_ic_txt) == 0:
+            blocked_ic_txt = self.INSTANCE_DEFAULT_AMT_STR
+        if len(domain_amt_txt) == 0:
+            domain_amt_txt = self.DOMAIN_DEFAULT_AMT_STR
 
-    def accept_both(self, instance_count_txt, domain_amt_txt, dialog):
-        if (len(domain_amt_txt) != 0 and domain_amt_txt.isdigit()) and (len(instance_count_txt) != 0 and instance_count_txt.isdigit()):
+        valid_ic_txt = valid_ic_txt.strip().replace(" ", "")
+        random_ic_txt = random_ic_txt.strip().replace(" ", "")
+        blocked_ic_txt = blocked_ic_txt.strip().replace(" ", "")
+        domain_amt_txt = domain_amt_txt.strip().replace(" ", "")
+
+        if self._verify_input(valid_ic_txt) and self._verify_input(random_ic_txt) and self._verify_input(blocked_ic_txt) and self._verify_input(domain_amt_txt):
             self.storage.modify_config('domains_used', int(domain_amt_txt))
 
-            self.storage.modify_config('instance_count', int(instance_count_txt))
+            self.storage.modify_config('instance_count', [int(valid_ic_txt), int(random_ic_txt), int(blocked_ic_txt)])
 
             valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
@@ -286,14 +328,14 @@ class Ui_MainWindow(object):
                 toaster = ToastNotifier()
                 toaster.show_toast(title="Starting both tests!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
-                               duration=1, threaded=True)
+                               duration=5, threaded=True)
             except AttributeError:
                 pass
 
             self.worker_both_1 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
-                                   self.storage, 1)
+                                   self.storage, [1,1,1])
             self.worker_both_1.start()
-            self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', self.instance_count))
+            self.worker_both_1.finished.connect(lambda: self.secondAction('benchmark', [valid_test, random_test, blocked_test], self.instance_count))
         else:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
@@ -301,8 +343,9 @@ class Ui_MainWindow(object):
             self.error_dialog.exec_()
             dialog.show()
 
+
 class WorkerTest(QtCore.QThread):
-    def __init__(self, nameserver, data_list, storage, inst_count):
+    def __init__(self, nameserver, data_list, storage, inst_count_list):
         super(WorkerTest, self).__init__()
 
         self.ns = nameserver
@@ -310,12 +353,16 @@ class WorkerTest(QtCore.QThread):
         self.random_data = data_list[1]
         self.blocked_data = data_list[2]
         self.storage = storage
-        self.inst_count = inst_count
+        self.inst_count_list = inst_count_list
 
     def run(self):
-        valid_test = DNSTest(self.ns, self.valid_data, self.storage, 'valid', self.inst_count)
-        random_test = DNSTest(self.ns, self.random_data, self.storage, 'random', self.inst_count)
-        block_test = DNSTest(self.ns, self.blocked_data, self.storage, 'blocked', self.inst_count)
+        self.storage.cur_test_state = True
+        valid_inst = self.inst_count_list[0]
+        random_inst = self.inst_count_list[1]
+        block_inst = self.inst_count_list[2]
+        valid_test = DNSTest(self.ns, self.valid_data, self.storage, 'valid', valid_inst)
+        random_test = DNSTest(self.ns, self.random_data, self.storage, 'random', random_inst)
+        block_test = DNSTest(self.ns, self.blocked_data, self.storage, 'blocked', block_inst)
         thread_1 = Thread(target = valid_test.run)
         thread_2 = Thread(target = random_test.run)
         thread_3 = Thread(target = block_test.run)
@@ -332,6 +379,12 @@ class Dialog(QtWidgets.QDialog):
         super(Dialog, self).__init__()
         self.storage = storage
 
+    def keyPressEvent(self, a0: QtGui.QKeyEvent) -> None:
+        if a0.key() != QtCore.Qt.Key_Escape:
+            a0.accept()
+        else:
+            a0.ignore()
+
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         self.storage.cur_test_state = False
         a0.accept()
@@ -345,6 +398,7 @@ class ReportWindow(QtWidgets.QMainWindow):
     def closeEvent(self, a0):
         self.storage.clear_server_down_nameservers()
         a0.accept()
+
 
 if __name__ == "__main__":
     import sys

@@ -22,7 +22,16 @@ def calculate_res(result_dict, record_dict):
         if entry_min < min_ and avg != 0:
             min_ = entry_min
 
-    all_entries = [list(list(record_dict.values())[i].values())[0][1] for i in range(len(list(record_dict.items()))) if len(record_dict[list(record_dict.keys())[i]][0][1]) != 0]
+    all_entries = []
+    for key in record_dict.keys():
+        value_dict = record_dict[key]
+        all_instances_in_dict = list(value_dict.keys())
+        if len(all_instances_in_dict) != 0:
+            for instance in all_instances_in_dict:
+                filtered_result = value_dict[instance][1]
+                if len(filtered_result) != 0:
+                    all_entries.append(filtered_result)
+
     if len(all_entries) != 0:
         stack = np.hstack(np.asarray(all_entries,dtype=object))
         avg_ = np.average(stack.astype(float))
@@ -34,9 +43,11 @@ def calculate_res(result_dict, record_dict):
 
 if __name__ == "__main__":
     import random
-    record_ = {'valid':(2,1,0.6,0.4), 'random':(0,0,0,0), 'blocked': (13,4,3,0.6)}
-    results = {'valid':{0:[random.randint(1,4) for _ in range(10)], 1: [random.randint(1,4) for _ in range(10)], 2: [random.randint(1,4) for _ in range(10)]},
-               'random': {0:[random.randint(1,4) for _ in range(10)], 1: [random.randint(1,4) for _ in range(10)], 2: [random.randint(1,4) for _ in range(10)]},
-               'blocked': {0:[random.randint(1,4) for _ in range(10)], 1: [random.randint(1,4) for _ in range(10)], 2: [random.randint(1,4) for _ in range(10)]}}
+    copy_1 = [random.randint(1,4) for _ in range(10)]
+    copy_2 =[random.randint(1,4) for _ in range(10)]
+    record_ = {'valid':(2,1,0.6,0.4), 'random':(0,0,0,0), 'blocked': (0,0,0,0)}
+    results = {'valid':{0:(copy_1,copy_1), 1: (copy_2, copy_2)},
+               'random': {},
+               'blocked': {}}
 
     print(calculate_res(record_, results))

@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from src.UI import AddDomains, SetDomain, RemoveDifferentDomains, AddDifferentDomains, random_add
+from src.UI import AddDomains_Dialog, SetDomain, RemoveDifferentDomains, AddDifferentDomains, random_add
 from src.main.MainComponents.LocalStorage import LocalStorage
 from src.main.MainComponents.DomainRandomizer import domain_random
 
@@ -114,24 +114,25 @@ class Ui_MainWindow(object):
         self.choice_ = QtWidgets.QDialog()
         self.choice_ui = AddDifferentDomains.Ui_Dialog()
         self.choice_ui.setupUi(self.choice_)
-        self.choice_.show()
         self.choice_ui.pushButton.clicked.connect(lambda: self.openWindow('valid'))
         self.choice_ui.pushButton_2.clicked.connect(self.openRandom)
         self.choice_ui.pushButton_3.clicked.connect(lambda: self.openWindow('blocked'))
+        self.choice_.exec_()
+
 
     def openWindow(self, chosen_section):
-        self.window = QtWidgets.QMainWindow()
-        self.ui = AddDomains.Ui_MainWindow()
+        self.window = QtWidgets.QDialog()
+        self.ui = AddDomains_Dialog.Ui_AddDomains()
         self.ui.setupUi(self.window)
-        self.window.show()
         self.ui.pushButton.clicked.connect(lambda: self.addContent(self.ui.lineEdit.text(), chosen_section))
+        self.window.exec_()
 
     def openRandom(self):
         self.r_dialog = QtWidgets.QDialog()
         self.r_ui = random_add.Ui_Dialog()
         self.r_ui.setupUi(self.r_dialog)
-        self.r_dialog.show()
-        self.r_ui.buttonBox.accepted.connect(lambda: self.addRandom(self.r_ui.lineEdit.text() ,self.r_dialog))
+        self.r_ui.buttonBox.accepted.connect(lambda: self.addRandom(self.r_ui.lineEdit.text(), self.r_dialog))
+        self.r_dialog.exec_()
 
     def addRandom(self, text, dialog):
         dialog.close()
@@ -163,9 +164,11 @@ class Ui_MainWindow(object):
             self.dialog = QtWidgets.QDialog()
             self.ui = SetDomain.Ui_Dialog()
             self.ui.setupUi(self.dialog)
-            self.dialog.show()
             self.ui.lineEdit.setText(sole_selected[list(sole_selected.keys())[0]][0].text())
-            self.ui.buttonBox.accepted.connect(lambda: self.modifyContent(self.dialog, self.ui.lineEdit.text(), sole_selected))
+            self.ui.buttonBox.accepted.connect(
+                lambda: self.modifyContent(self.dialog, self.ui.lineEdit.text(), sole_selected))
+            self.dialog.exec_()
+
 
     def addContent(self, content, section):
         content_list = content.split(";")
@@ -233,25 +236,23 @@ class Ui_MainWindow(object):
         self.remove_obj = RemoveDifferentDomains.Ui_Dialog()
 
         self.remove_obj.setupUi(self.remove_dialog)
-        self.remove_dialog.show()
-        self.remove_obj.pushButton.clicked.connect(lambda: self.remove_valid(self.remove_dialog))
-        self.remove_obj.pushButton_2.clicked.connect(lambda: self.remove_random(self.remove_dialog))
-        self.remove_obj.pushButton_3.clicked.connect(lambda: self.remove_blocked(self.remove_dialog))
+        self.remove_obj.pushButton.clicked.connect(self.remove_valid)
+        self.remove_obj.pushButton_2.clicked.connect(self.remove_random)
+        self.remove_obj.pushButton_3.clicked.connect(self.remove_blocked)
+        self.remove_dialog.exec_()
 
-    def remove_valid(self, mw):
+
+    def remove_valid(self):
         self.ValidList.clear()
         self.storage.remove_all_domains('valid')
-        mw.close()
 
-    def remove_random(self, mw):
+    def remove_random(self):
         self.RandomList.clear()
         self.storage.remove_all_domains('random')
-        mw.close()
 
-    def remove_blocked(self, mw):
+    def remove_blocked(self):
         self.BlockList.clear()
         self.storage.remove_all_domains('blocked')
-        mw.close()
 
 
 if __name__ == "__main__":
