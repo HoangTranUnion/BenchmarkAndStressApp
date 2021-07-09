@@ -99,23 +99,3 @@ class Connection:
         print("Pinged IP/URL {} with return code {}".format(ipaddress, proc.returncode))
         return proc.returncode
 
-
-if __name__ == '__main__':
-    new_connection = Connection('103.192.236.108').status
-    print(new_connection)
-    new_connection_2 = Connection(domain_url='google.com',url_type='domain')
-    print(new_connection_2.status)
-    new_connection_3 = Connection('1.1.1.1', url_type='doh')
-    print(new_connection_3.status)
-    new_connection_4 = Connection('1.1.1.1', domain_url='google.com',url_type='domain')
-    print(new_connection_4.status)
-    try:
-        nc_5 = Connection(domain_url='google.com')
-    except AssertionError:
-        print("Assert Failed. No url type specified")
-
-    nc_6 = Connection(domain_url='https://staging.visafe.vn/dns-query', url_type='doh')
-    print(nc_6.status)
-
-    nc_7 = Connection.domain_status('petmart.vn', 'domain')
-    print("link: petmart.vn - status:", nc_7)

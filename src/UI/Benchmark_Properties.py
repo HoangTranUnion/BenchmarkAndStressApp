@@ -37,12 +37,3 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Properties"))
         self.label.setText(_translate("Dialog", "Number of domains that should be used"))
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())

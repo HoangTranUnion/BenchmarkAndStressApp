@@ -169,11 +169,3 @@ class LocalStorage:
         for record in self.records:
             new_ls.store_records(record)
         return new_ls
-
-
-if __name__ == "__main__":
-    ls = LocalStorage()
-    ls.add_nameservers(['1.1.1.1','8.8.8.8'])
-    ls.add_domains(['abc.com'],'valid')
-    print(ls.get_nameservers())
-    print(ls.get_config())

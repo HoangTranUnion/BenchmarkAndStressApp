@@ -58,12 +58,3 @@ class Ui_Dialog(object):
         self.label_3.setText(_translate("Dialog", "Number of instances for blocked domains"))
         self.label_4.setText(_translate("Dialog", "Number of domains that should be used"))
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())

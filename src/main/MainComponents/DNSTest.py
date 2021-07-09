@@ -2,6 +2,7 @@ from src.main.MainComponents.DNS import DNS
 from src.main.MainComponents.LocalStorage import LocalStorage
 import dns.inet
 
+
 class DNSTest:
     def __init__(self, dns_list:list, domain_list:list, storage : LocalStorage, data_type, instance_count = 100):
         '''
@@ -59,49 +60,3 @@ class DNSTest:
 
     def get_stats(self):
         return self.stats_records
-
-
-if __name__ == "__main__":
-
-    # List of nameservers.
-    dns_list = ['1.1.1.1','8.8.8.8',
-                "https://dns.google/dns-query",
-                "https://cloudflare-dns.com/dns-query",
-                'https://dns-staging.visafe.vn/dns-query']
-
-    from extract_domain import *
-    from settings import MOCK_DATA_FOLDER, ROOT_FOLDER
-
-    new_links = os.path.join(MOCK_DATA_FOLDER, "new_links.txt")
-    top_500 = os.path.join(MOCK_DATA_FOLDER, "top500Domains.csv")
-
-    # Nutshell: shuffle determines if the data should be shuffled or not
-    #           limit determines how much data should only be gained from a file.
-    # In this case, nl_data is only taking in 10 links.
-    nl_data = ExtractDomain(new_links, shuffle= True, limit = 10).data
-
-    import pandas as pd
-    top_data = pd.read_csv(top_500)['Root Domain'][:30]
-
-    obj = DNSTest(dns_list, nl_data)
-
-    # At the very moment, the stress test and benchmark test are not concurrent.
-    # This will change in a later push.
-    obj_2 = DNSTest(dns_list, nl_data)
-
-    from datetime import datetime
-    start_timer = datetime.now()
-    obj.run()
-    end_timer = datetime.now()
-
-    print("Duration:", end_timer - start_timer)
-    obj.report_stats(ROOT_FOLDER)
-
-    # Benchmark. Hence, the number of instances is reduced to 1.
-    obj_2.set_instance_count(1)
-    start_timer = datetime.now()
-    1
-    end_timer = datetime.now()
-
-    print("Duration:", end_timer - start_timer)
-    obj.report_stats(ROOT_FOLDER, "Report_2.xls")

@@ -9,6 +9,7 @@ from threading import Thread
 import numpy as np
 import requests.exceptions
 
+
 class ServerDown(Exception):
     pass
 

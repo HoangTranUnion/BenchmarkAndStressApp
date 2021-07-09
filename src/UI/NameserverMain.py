@@ -11,7 +11,6 @@
 from PyQt5 import QtCore, QtWidgets, Qt
 from src.main.MainComponents.LocalStorage import LocalStorage
 from src.UI import SetNameserver, AddNameserver_Dialog
-import random
 
 
 class Ui_MainWindow(object):

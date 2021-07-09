@@ -35,12 +35,3 @@ class Ui_Dialog(object):
         self.pushButton_2.setText(_translate("Dialog", "Remove Random Domains"))
         self.pushButton_3.setText(_translate("Dialog", "Remove Blocked Domains"))
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())

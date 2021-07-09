@@ -8,10 +8,6 @@ MOCK_DATA_FOLDER = os.path.join(TEST_FOLDER, "mockData")
 
 UI_SKETCH_FOLDER = os.path.join(ROOT_FOLDER, "AppResources")
 UI_FINAL_FOLDER = os.path.join(ROOT_FOLDER, "src/UI")
-DEFAULT_APP_DATA_FOLDER = os.path.join(ROOT_FOLDER, "data")
-DEFAULT_NAMESERVER_DATA_LOC = os.path.join(DEFAULT_APP_DATA_FOLDER,"nameservers")
-DEFAULT_DOMAIN_DATA_LOC = os.path.join(DEFAULT_APP_DATA_FOLDER, "domains")
-DEFAULT_RESULTS_LOC = os.path.join(DEFAULT_APP_DATA_FOLDER,"reports")
 
 APP_RESOURCES_FOLDER = os.path.join(ROOT_FOLDER,'AppResources')
 ASSETS_FOLDER = os.path.join(APP_RESOURCES_FOLDER,'assets')

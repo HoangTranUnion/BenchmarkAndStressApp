@@ -16,13 +16,12 @@ from src.main.MainComponents.CalculateResults import calculate_res
 import datetime
 import os
 import xlwt
-from settings import DEFAULT_RESULTS_LOC
+from settings import ROOT_FOLDER
 
 
 class Ui_MainWindow(object):
     def __init__(self, storage: LocalStorage, purpose: str):
         self.storage = storage
-        # self.save_loc = DEFAULT_RESULTS_LOC
         self.purpose = purpose
         self.err_ns = self.storage.get_server_down_nameservers()
         data :dict = self.storage.get_test_results()
@@ -97,7 +96,7 @@ class Ui_MainWindow(object):
         folder_selection = QtWidgets.QFileDialog.getExistingDirectory()
 
         if len(folder_selection) == 0:
-            folder_selection = DEFAULT_RESULTS_LOC
+            folder_selection = ROOT_FOLDER
 
         cur_day = datetime.date.today().strftime("%Y%m%d")
 

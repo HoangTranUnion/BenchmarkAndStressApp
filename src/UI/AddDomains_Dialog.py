@@ -46,11 +46,3 @@ class Ui_AddDomains(object):
             data_string += ';'.join(data)
         self.lineEdit.setText(data_string)
 
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    AddDomains = QtWidgets.QDialog()
-    ui = Ui_AddDomains()
-    ui.setupUi(AddDomains)
-    AddDomains.show()
-    sys.exit(app.exec_())

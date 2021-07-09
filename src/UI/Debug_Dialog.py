@@ -35,15 +35,3 @@ class Ui_Dialog(object):
         _translate = QtCore.QCoreApplication.translate
         Dialog.setWindowTitle(_translate("Dialog", "Warning"))
 
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ls = LocalStorage()
-    ls.update_server_down('nru.ss')
-    ls.update_server_down('brs.ss')
-    ui = Ui_Dialog(ls)
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())

@@ -45,13 +45,3 @@ class Ui_Dialog(object):
             data = ExtractDomain.get_all_data(file)
             data_string += ';'.join(data)
         self.lineEdit.setText(data_string)
-
-
-if __name__ == "__main__":
-    import sys
-    app = QtWidgets.QApplication(sys.argv)
-    Dialog = QtWidgets.QDialog()
-    ui = Ui_Dialog()
-    ui.setupUi(Dialog)
-    Dialog.show()
-    sys.exit(app.exec_())
