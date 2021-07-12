@@ -1,5 +1,6 @@
 from settings import VALID_CONFIG_KEYWORDS
-import copy
+import copy, math
+
 
 class LocalStorage:
     '''
@@ -17,7 +18,7 @@ class LocalStorage:
         self.domain_types = ['valid','random','blocked']
         errors = ['ServerDown','UnableToResolve']
         self.default_domains = {key:[] for key in self.domain_types}
-        self.domains = self.default_domains
+        self.domains = copy.deepcopy(self.default_domains)
         self.default_config = {'instance_count': [], 'domains_used':0}
         self.config = copy.deepcopy(self.default_config)
         self.result = []
@@ -25,24 +26,55 @@ class LocalStorage:
         self.error_record = {err:[] for err in errors}
         self.test_state = False
 
+        self._cur_string = ""
+        self._test_counter = 0
+
+    def _update_total(self):
+        inst_list = self.config['instance_count']
+        ns_len = len(self.nameservers)
+        if len(inst_list) != 0: # in theory, should only happen when we specify the number of instances
+            return sum([val * ns_len * self.config['domains_used'] for val in inst_list])
+        else:
+            return 0
+
+    def update_counter(self):
+        self._test_counter += 1
+
+    def get_progress(self):
+        print(self._update_total())
+        return math.floor(self._test_counter / self._update_total())
+
+    @property
+    def cur_string(self) -> str:
+        return self._cur_string
+
+    @cur_string.setter
+    def cur_string(self, replacement:str):
+        self._cur_string = replacement
+
     def add_nameserver(self, nameserver):
         self.nameservers.append(nameserver)
+        self._update_total()
 
     def add_domain(self, domain, domain_type):
         if domain_type not in self.domain_types:
             raise KeyError("{} is an invalid key for domains".format(domain_type))
         self.domains[domain_type].append(domain)
+        self._update_total()
 
     def add_nameservers(self, nameservers:list):
         for nameserver in nameservers:
             self.nameservers.append(nameserver)
+        self._update_total()
 
     def add_domains(self, domains:list, domain_type):
         for domain in domains:
             self.domains[domain_type].append(domain)
+        self._update_total()
 
     def add_domain_first(self, domain, domain_type):
         self.domains[domain_type].insert(0, domain)
+        self._update_total()
 
     def add_nameserver_types(self, ns_dict):
         self.nameservers_types = ns_dict
@@ -51,18 +83,23 @@ class LocalStorage:
         new_dm = reversed(domains)
         for elem in new_dm:
             self.domains[domain_type].insert(0, elem)
+        self._update_total()
 
     def remove_nameserver(self, nameserver):
         self.nameservers.remove(nameserver)
+        self._update_total()
 
     def remove_all_nameservers(self):
         self.nameservers.clear()
+        self._update_total()
 
     def remove_domains(self, domain, domain_type):
         self.domains[domain_type].remove(domain)
+        self._update_total()
 
     def remove_all_domains(self, type):
         self.domains[type].clear()
+        self._update_total()
 
     def replace_nameservers(self, new_nameser_set):
         self.nameservers = new_nameser_set
@@ -131,6 +168,7 @@ class LocalStorage:
         if keyword not in VALID_CONFIG_KEYWORDS:
             raise KeyError("{} is an invalid keyword".format(keyword))
         self.config[keyword] = value
+        self._update_total()
 
     def get_config(self):
         return self.config
@@ -156,7 +194,7 @@ class LocalStorage:
     def reset(self):
         self.result.clear()
         self.records.clear()
-        self.config = self.default_config
+        self.config = copy.deepcopy(self.default_config)
 
     def copy_results(self):
         new_ls = LocalStorage()

@@ -10,7 +10,7 @@
 
 from PyQt5 import QtCore, QtGui, QtWidgets
 
-from src.UI import TempTest, NewDomainUI, NameserverMain
+from src.UI import TempTest, NewDomainUI, NameserverMain, NewTestUI
 from src.main.MainComponents.LocalStorage import LocalStorage
 
 
@@ -24,11 +24,10 @@ class Ui_MainWindow(object):
         self.ui.setupUi(self.window)
         self.window.show()
 
-    def openTest(self, MainWindow):
-        self.window = QtWidgets.QMainWindow()
-        self.ui = TempTest.Ui_MainWindow(self.storage)
+    def openTest(self):
+        self.window = TestWindow(self.storage)
+        self.ui = NewTestUI.Ui_MainWindow(self.storage)
         self.ui.setupUi(self.window)
-        MainWindow.close()
         self.window.show()
 
     def setupUi(self, MainWindow):
@@ -41,7 +40,7 @@ class Ui_MainWindow(object):
         self.pushButton_4.setStyleSheet("font: 12pt \"MS Shell Dlg 2\";")
         self.pushButton_4.setObjectName("pushButton_4")
 
-        self.pushButton_4.clicked.connect(lambda: self.openTest(MainWindow))
+        self.pushButton_4.clicked.connect(self.openTest)
 
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
         self.pushButton_2.setGeometry(QtCore.QRect(50, 140, 291, 81))
@@ -72,3 +71,18 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "Domains"))
         self.pushButton.setText(_translate("MainWindow", "Nameservers"))
 
+
+class TestWindow(QtWidgets.QMainWindow):
+    def __init__(self, storage:LocalStorage):
+        super(TestWindow, self).__init__()
+        self.storage = storage
+
+    def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
+        if self.storage.cur_test_state:
+            self.error_dialog = QtWidgets.QErrorMessage()
+            self.error_dialog.setWindowTitle('Warning')
+            self.error_dialog.showMessage('Please wait until the test is completed.')
+            self.error_dialog.exec_()
+            a0.ignore()
+        else:
+            a0.accept()

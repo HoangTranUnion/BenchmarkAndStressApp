@@ -117,6 +117,8 @@ class DNS:
             # text_browser.append(line + "\n")
             # text_browser.show()
             print(line)
+            storage.cur_string = line
+            storage.update_counter()
             try:
                 res = self._run_time(self.dns_info, domain)
                 domain_run_time.append(res)
