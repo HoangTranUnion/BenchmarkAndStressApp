@@ -113,7 +113,7 @@ class DNS:
         index = 0
         while running and index < len(domain_list):
             domain = domain_list[index]
-            line = "{} - Domain {}/{} - {}".format(self.dns_info, index + 1, len(domain_list), domain)
+            line = "{} - Thread {} - Domain {}/{} - {}".format(self.dns_info, instance + 1, index + 1, len(domain_list), domain)
             # text_browser.append(line + "\n")
             # text_browser.show()
             print(line)
@@ -146,7 +146,7 @@ class DNS:
         :return:
         '''
         print(
-            "Stress testing {} over {} concurrent instances and {} links per instance".format(self.dns_info, instance_count,
+            "Testing {} over {} concurrent instances and {} links per instance".format(self.dns_info, instance_count,
                                                                                               len(domain_list)))
         storage_dict[self.dns_info] = {data_type:{}}
 
