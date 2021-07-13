@@ -114,22 +114,30 @@ class DNS:
         index = 0
         while running and index < len(domain_list):
             domain = domain_list[index]
-            line = "{} - Thread {}/{} - Domain {}/{} - {}".format(self.dns_info, instance + 1, total_num_inst, index + 1, len(domain_list), domain)
-            # text_browser.append(line + "\n")
-            # text_browser.show()
-            print(line)
-            storage.cur_string = line
             storage.update_counter()
             try:
                 res = self._run_time(self.dns_info, domain)
                 domain_run_time.append(res)
                 if type(res) != str:
                     filtered.append(res)
+                line = "{} - Thread {}/{} - Domain {}/{} - {} - resolved".format(self.dns_info, instance + 1, total_num_inst,
+                                                                      index + 1, len(domain_list), domain)
+                # text_browser.append(line + "\n")
+                # text_browser.show()
+                print(line)
+                storage.cur_string = line
                 index += 1
             except ServerDown:
                 storage.update_server_down(self.dns_info)
                 running = False
             except UnableToResolve:
+                line = "{} - Thread {}/{} - Domain {}/{} - {} - not resolved".format(self.dns_info, instance + 1,
+                                                                                 total_num_inst,
+                                                                                 index + 1, len(domain_list), domain)
+                # text_browser.append(line + "\n")
+                # text_browser.show()
+                print(line)
+                storage.cur_string = line
                 index += 1
         storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
 
