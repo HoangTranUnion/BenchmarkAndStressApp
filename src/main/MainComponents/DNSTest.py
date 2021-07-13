@@ -10,7 +10,7 @@ class DNSTest:
         :param dns_list: A list of nameservers. This can be a mix of IPs and DNS over HTTPS (DoH) URLs
         '''
 
-        self._dns_list = [self._create_dns_obj(nameserver) for nameserver in dns_list]
+        self._dns_list = [self._create_dns_obj(storage, nameserver) for nameserver in dns_list]
         self._dns_types = {dns_obj.dns_info: dns_obj.state for dns_obj in self._dns_list}
         self._domain_list = domain_list
         self.instance_count = int(instance_count)
@@ -28,11 +28,11 @@ class DNSTest:
         self.stats_records = {ns:{self.data_type:()} for ns in dns_list}
 
     @staticmethod
-    def _create_dns_obj(nameserver):
+    def _create_dns_obj(storage, nameserver):
         if dns.inet.is_address(nameserver):
-            return DNS.ip(nameserver)
+            return DNS.ip(storage, nameserver)
         else:
-            return DNS.doh_url(nameserver)
+            return DNS.doh_url(storage, nameserver)
 
     def add_dns(self, nameserver: str):
         self._dns_list.append(self._create_dns_obj(nameserver))

@@ -1,5 +1,5 @@
 from src.main.MainComponents.LocalStorage import LocalStorage
-from src.UI.NewMain import Ui_MainWindow
+from src.UI.UISubclasses.MainMenu import MainMenu
 
 from PyQt5 import QtWidgets
 import sys
@@ -16,10 +16,12 @@ def main():
     # Now, Main Window should be loaded now.
     # And now we load the window.
     app = QtWidgets.QApplication(sys.argv)
-    MainWindow = QtWidgets.QMainWindow()
-    ui = Ui_MainWindow(new_storage)
-    ui.setupUi(MainWindow)
-    MainWindow.show()
+    # MainWindow = QtWidgets.QMainWindow()
+    # ui = Ui_MainWindow(new_storage)
+    # ui.setupUi(MainWindow)
+    # MainWindow.show()
+    mw = MainMenu(new_storage)
+    mw.show()
     sys.exit(app.exec_())
 
 

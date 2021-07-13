@@ -43,7 +43,7 @@ class Ui_MainWindow(object):
     def retranslateUi(self, MainWindow):
         _translate = QtCore.QCoreApplication.translate
         MainWindow.setWindowTitle(_translate("MainWindow", "Nameservers"))
-        self.pushButton.setText(_translate("MainWindow", "Add Domains"))
+        self.pushButton.setText(_translate("MainWindow", "Add NS"))
         self.pushButton_2.setText(_translate("MainWindow", "Remove"))
         self.pushButton_3.setText(_translate("MainWindow", "Remove All"))
         self.pushButton_5.setText(_translate("MainWindow", "Modify"))

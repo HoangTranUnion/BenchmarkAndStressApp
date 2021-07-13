@@ -118,19 +118,19 @@ class LocalStorage:
         self.domains[domain_type].insert(ori_index, modified)
 
     def get_domains(self):
-        return self.domains
+        return copy.deepcopy(self.domains)
 
     def get_domain_by_section(self, section):
         return self.domains[section]
 
     def get_valid_domains(self):
-        return self.domains['valid']
+        return copy.deepcopy(self.domains['valid'])
 
     def get_random_domains(self):
-        return self.domains['random']
+        return copy.deepcopy(self.domains['random'])
 
     def get_blocked_domains(self):
-        return self.domains['blocked']
+        return copy.deepcopy(self.domains['blocked'])
 
     def get_nameservers(self):
         return self.nameservers
