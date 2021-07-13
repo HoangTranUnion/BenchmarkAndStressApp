@@ -5,6 +5,9 @@ from src.main.MainComponents.extract_domain import ExtractDomain
 
 
 class AddDomains(QDialog, AddDomains_Dialog.Ui_AddDomains):
+    '''
+    A subclass Dialog of the AddDomains_Dialog.
+    '''
     def __init__(self):
         QDialog.__init__(self)
         self.setupUi(self)

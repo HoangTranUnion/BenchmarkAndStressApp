@@ -5,10 +5,12 @@ from src.main.MainComponents.LocalStorage import LocalStorage
 
 
 class Debug(QtWidgets.QDialog, Debug_Dialog.Ui_Dialog):
+    '''
+    A subclass Dialog of the Debug_Dialog.
+    '''
     def __init__(self, storage: LocalStorage):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
-        self.setWindowFlags(QtCore.Qt.WindowSystemMenuHint | QtCore.Qt.WindowTitleHint)
         self.storage = storage
         self.err_ns = self.storage.get_server_down_nameservers()
 

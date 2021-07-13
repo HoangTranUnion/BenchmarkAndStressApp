@@ -8,6 +8,10 @@ class DNSTest:
         '''
         Performs DNS testing.
         :param dns_list: A list of nameservers. This can be a mix of IPs and DNS over HTTPS (DoH) URLs
+        :param domain_list: A list of domains for testing
+        :param storage: A storage to store the test results
+        :param data_type: The type of domain that is being tested
+        :param instance_count: The number of concurrent instances to stress test.
         '''
 
         self._dns_list = [self._create_dns_obj(storage, nameserver) for nameserver in dns_list]

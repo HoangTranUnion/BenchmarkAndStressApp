@@ -74,6 +74,8 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             self.rp.show()
 
         self.textBrowser.clear()
+        QtGui.QGuiApplication.processEvents()
+        self._all_cur_text.clear()
 
         self.worker_2 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test], self.storage, stress_instance)
         self.worker_2.start()

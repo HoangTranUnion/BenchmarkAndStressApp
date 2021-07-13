@@ -10,7 +10,6 @@ class ExtractDomain:
     '''
     This class is for extracting links from files supplied.
     These files are assumed, by default, to be .txt files that have data line by line.
-
     '''
 
     def __init__(self, filePath:str, shuffle = False, limit = None):
@@ -41,6 +40,11 @@ class ExtractDomain:
         return ExtractDomain(file_loc).data
 
     def _extract(self):
+        '''
+        Extract the data in the file(s). For this snippet, it is assumed that the files are made as follows:
+            The data is separated line by line, with each line containing one domain/link/IP
+        :return: the data extracted from the file(s)
+        '''
         if self._structure == 'file':
             with open(self.file_path,'r') as f:
                 data = [line.rstrip("\n") for line in f.readlines()]

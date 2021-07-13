@@ -23,6 +23,7 @@ class DNS:
         '''
         Initialize the Domain class.
         NOTE: If domain_ip and domain_url is both not None, domain_ip will be prioritized.
+        :param storage: The storage to store the testing results.
         :param dns_ip: Optional. The IP of the domain.
         :param dns_url: Optional. The URL of the domain. This field refers to the DNS over HTTPS (DoH) URL of the domain,
                             granted that the domain supports DoH
@@ -224,6 +225,3 @@ class DNS:
             if self.dns_info == other.dns_info:
                 return True
         return False
-
-if __name__ == '__main__':
-    print(DNS(dns_ip='1.1.1.1').stress(['google.com'],{}, {'1.1.1.1':{'valid':()}}, 'valid',LocalStorage(), 0))

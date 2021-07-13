@@ -17,6 +17,7 @@ class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
         self.random_data = self.storage.get_random_domains()
         self.blocked_data = self.storage.get_blocked_domains()
 
+        # avoid duplicates
         self.valid_data = self.filter(self.valid_data)
         self.random_data = self.filter(self.random_data)
         self.blocked_data = self.filter(self.blocked_data)

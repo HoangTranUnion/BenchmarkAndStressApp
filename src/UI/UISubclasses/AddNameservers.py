@@ -5,6 +5,9 @@ from src.main.MainComponents.extract_domain import ExtractDomain
 
 
 class AddNameservers(QtWidgets.QDialog, Ui_Dialog):
+    '''
+        A subclass Dialog of the AddNameserver_Dialog.
+        '''
     def __init__(self):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)

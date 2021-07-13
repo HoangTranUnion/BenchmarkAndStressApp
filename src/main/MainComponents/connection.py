@@ -32,6 +32,7 @@ class Connection:
                 Specifies the type of the input url
                 Options: 'doh' or 'domain'.
                 Raises AssertionError if domain_url is present but url_type is not
+        :param storage: Optional - only useful if you want to store the ping status to a domain.
         '''
 
         self._domain_ip = domain_ip

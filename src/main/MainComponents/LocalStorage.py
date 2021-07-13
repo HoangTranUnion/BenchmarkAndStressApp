@@ -5,19 +5,18 @@ import copy, math
 class LocalStorage:
     '''
     Stores all the information needed by the application.
-    Attributes:
-        - nameservers: The list of nameservers that are being tested
-        - nameservers_types: The dictionary of types of the nameservers. By default, this field is None
-        - domains: The list domains that are being used to resolve
-        - config: The configurations for the app.
-        - random: The list containing randomly generated links. By default, this is None.
+    Attributes
+    - nameservers: The nameservers that are being tested
+    - nameservers_types: The type(s) of the nameserver(s), which is/are either 'ip' or 'doh'.
+        Defaults as None, will be updated as the test is conducted.
+    -
     '''
     def __init__(self):
         self.nameservers = []
         self.nameservers_types = None
-        self.domain_types = ['valid','random','blocked']
+        self._domain_types = ['valid', 'random', 'blocked']
         errors = ['ServerDown','UnableToResolve']
-        self.default_domains = {key:[] for key in self.domain_types}
+        self.default_domains = {key:[] for key in self._domain_types}
         self.domains = copy.deepcopy(self.default_domains)
         self.default_config = {'instance_count': [], 'domains_used':0}
         self.config = copy.deepcopy(self.default_config)
@@ -57,7 +56,7 @@ class LocalStorage:
         self._update_total()
 
     def add_domain(self, domain, domain_type):
-        if domain_type not in self.domain_types:
+        if domain_type not in self._domain_types:
             raise KeyError("{} is an invalid key for domains".format(domain_type))
         self.domains[domain_type].append(domain)
         self._update_total()
