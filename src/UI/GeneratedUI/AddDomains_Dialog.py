@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_AddDomains(object):
     def setupUi(self, AddDomains):
         AddDomains.setObjectName("AddDomains")
-        AddDomains.resize(348, 160)
+        AddDomains.setFixedSize(348, 160)
         self.lineEdit = QtWidgets.QLineEdit(AddDomains)
         self.lineEdit.setGeometry(QtCore.QRect(10, 10, 331, 41))
         self.lineEdit.setObjectName("lineEdit")

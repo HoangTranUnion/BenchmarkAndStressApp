@@ -151,7 +151,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             else:
                 valid_data = valid_data[:required_number]
             if len(self._random_data) < required_number and len(self._random_data) != 0:
-                random_data =self._mod(self._random_data, required_number)
+                random_data = self._mod(self._random_data, required_number)
             else:
                 random_data = random_data[:required_number]
             if len(self._blocked_data) < required_number and len(self._blocked_data) != 0:

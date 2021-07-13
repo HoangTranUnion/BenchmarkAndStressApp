@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_ShuffleChoice(object):
     def setupUi(self, ShuffleChoice):
         ShuffleChoice.setObjectName("ShuffleChoice")
-        ShuffleChoice.resize(281, 230)
+        ShuffleChoice.setFixedSize(281, 230)
         self.shuffleValid = QtWidgets.QPushButton(ShuffleChoice)
         self.shuffleValid.setGeometry(QtCore.QRect(10, 20, 261, 51))
         self.shuffleValid.setObjectName("shuffleValid")
