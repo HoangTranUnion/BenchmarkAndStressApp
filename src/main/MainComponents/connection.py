@@ -1,7 +1,7 @@
 # install dnspython: pip install dnspython
 import subprocess
 import requests
-
+from src.main.MainComponents.LocalStorage import LocalStorage
 
 class Connection:
     '''
@@ -19,7 +19,7 @@ class Connection:
         For Domains - 0 if the connection can established, 1 otherwise.
     '''
 
-    def __init__(self, domain_ip = None, domain_url = None, url_type = None):
+    def __init__(self, domain_ip = None, domain_url = None, url_type = None, storage :LocalStorage = None):
         '''
         Initializes the Connection class.
         NOTE: If domain_ip and domain_url is both not None, domain_ip will be prioritized.
@@ -32,6 +32,7 @@ class Connection:
                 Specifies the type of the input url
                 Options: 'doh' or 'domain'.
                 Raises AssertionError if domain_url is present but url_type is not
+        :param storage: Optional - only useful if you want to store the ping status to a domain.
         '''
 
         self._domain_ip = domain_ip
@@ -39,15 +40,17 @@ class Connection:
         self._url_type = url_type
         if self._domain_url is not None:
             assert self._url_type is not None
+        self.storage = storage
+
         self.status = self._check()
 
     @classmethod
-    def ip_status(cls, domain_ip):
-        return cls(domain_ip).status
+    def ip_status(cls, domain_ip, storage = None):
+        return cls(domain_ip, storage = storage).status
 
     @classmethod
-    def domain_status(cls, domain_url, url_type):
-        return cls(None, domain_url, url_type).status
+    def domain_status(cls, domain_url, url_type, storage = None):
+        return cls(None, domain_url, url_type, storage).status
 
     def _check(self):
         if self._domain_ip is None and self._domain_url is None:
@@ -96,6 +99,9 @@ class Connection:
             ['ping', ipaddress],
             stdout=subprocess.PIPE)
         stdout, stderr = proc.communicate()
-        print("Pinged IP/URL {} with return code {}".format(ipaddress, proc.returncode))
+        ping_str = "Pinged IP/URL {} with return code {}".format(ipaddress, proc.returncode)
+        if self.storage is not None:
+            self.storage.cur_string = ping_str
+        print(ping_str)
         return proc.returncode
 

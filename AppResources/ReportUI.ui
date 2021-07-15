@@ -30,7 +30,7 @@
      <string>Save Report</string>
     </property>
    </widget>
-   <widget class="QTableView" name="tableView">
+   <widget class="QTableWidget" name="tableWidget">
     <property name="geometry">
      <rect>
       <x>10</x>

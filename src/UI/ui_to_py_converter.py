@@ -11,14 +11,14 @@ def convert(target_name:str):
 
 
 if __name__ == '__main__':
-    # for file in os.listdir(UI_FINAL_FOLDER):
-    #     convert(os.path.join(UI_FINAL_FOLDER,file))
+    # for file in os.listdir(UI_SKETCH_FOLDER):
+    #     convert(os.path.join(UI_FOLDER,file))
 
     # list_of_modified_files = ['AddDifferentDomains.ui', 'Benchmark_Properties.ui', 'NewDomainUI.ui','NewMain.ui','RemoveDifferentDomains.ui',
     #                           'ReportUI.ui', 'Stress_Properties.ui']
     # for file in list_of_modified_files:
-    #     convert(os.path.join(UI_SKETCH_FOLDER,file))
+    #     convert(os.path.join(UI_FOLDER,file))
 
-    convert(os.path.join(UI_SKETCH_FOLDER, 'AddDomains_Dialog.ui'))
+    convert(os.path.join(UI_FOLDER, 'ReportUI.ui'))
 
 

@@ -19,24 +19,26 @@ class UnableToResolve(Exception):
 
 
 class DNS:
-    def __init__(self, **kwargs):
+    def __init__(self,storage: LocalStorage,  **kwargs):
         '''
         Initialize the Domain class.
         NOTE: If domain_ip and domain_url is both not None, domain_ip will be prioritized.
+        :param storage: The storage to store the testing results.
         :param dns_ip: Optional. The IP of the domain.
         :param dns_url: Optional. The URL of the domain. This field refers to the DNS over HTTPS (DoH) URL of the domain,
                             granted that the domain supports DoH
         '''
 
         # Explanation: dns_info refers to the nameserver, and self.status is to see if the nameserver is active or not.
+        self.storage = storage
         if 'dns_ip' in kwargs and kwargs['dns_ip'] is not None:
             self.dns_info = kwargs['dns_ip']
-            self.status = Connection.ip_status(self.dns_info)
+            self.status = Connection.ip_status(self.dns_info, self.storage)
             self.state = 'ip'
         elif 'dns_url' in kwargs and kwargs['dns_url'] is not None:
             self.dns_info = kwargs['dns_url']
             try:
-                self.status = Connection.domain_status(self.dns_info,'doh')
+                self.status = Connection.domain_status(self.dns_info,'doh', self.storage)
             except requests.exceptions:
                 self.status = 1
             self.state = 'doh'
@@ -44,12 +46,12 @@ class DNS:
             raise KeyError("Keyword not identified")
 
     @classmethod
-    def ip(cls, dns_ip):
-        return cls(dns_ip = dns_ip)
+    def ip(cls, storage, dns_ip):
+        return cls(storage, dns_ip = dns_ip)
 
     @classmethod
-    def doh_url(cls, doh_url):
-        return cls(dns_url = doh_url)
+    def doh_url(cls, storage, doh_url):
+        return cls(storage, dns_url = doh_url)
 
     def _run_time(self, nameserver: str, domain: str):
         '''
@@ -100,7 +102,7 @@ class DNS:
                 raise UnableToResolve("Unable to resolve the given domain")
             return "Invalid"
 
-    def _single_run(self, domain_list, instance: int, storage_dict:dict, data_type, storage:LocalStorage):
+    def _single_run(self, domain_list, instance: int, total_num_inst, storage_dict:dict, data_type, storage:LocalStorage):
         '''
             Runs a single instance of testing the nameserver under the given domain list
             :param domain_list: The list of domains that are being used for testing
@@ -113,20 +115,30 @@ class DNS:
         index = 0
         while running and index < len(domain_list):
             domain = domain_list[index]
-            line = "{} - Domain {}/{} - {}".format(self.dns_info, index + 1, len(domain_list), domain)
-            # text_browser.append(line + "\n")
-            # text_browser.show()
-            print(line)
+            storage.update_counter()
             try:
                 res = self._run_time(self.dns_info, domain)
                 domain_run_time.append(res)
                 if type(res) != str:
                     filtered.append(res)
+                line = "{} - Thread {}/{} - Domain {}/{} - {} - resolved".format(self.dns_info, instance + 1, total_num_inst,
+                                                                      index + 1, len(domain_list), domain)
+                # text_browser.append(line + "\n")
+                # text_browser.show()
+                print(line)
+                storage.cur_string = line
                 index += 1
             except ServerDown:
                 storage.update_server_down(self.dns_info)
                 running = False
             except UnableToResolve:
+                line = "{} - Thread {}/{} - Domain {}/{} - {} - not resolved".format(self.dns_info, instance + 1,
+                                                                                 total_num_inst,
+                                                                                 index + 1, len(domain_list), domain)
+                # text_browser.append(line + "\n")
+                # text_browser.show()
+                print(line)
+                storage.cur_string = line
                 index += 1
         storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
 
@@ -144,14 +156,14 @@ class DNS:
         :return:
         '''
         print(
-            "Stress testing {} over {} concurrent instances and {} links per instance".format(self.dns_info, instance_count,
+            "Testing {} over {} concurrent instances and {} links per instance".format(self.dns_info, instance_count,
                                                                                               len(domain_list)))
         storage_dict[self.dns_info] = {data_type:{}}
 
         if int(instance_count) != 0:
             threads = []
             for n in range(int(instance_count)):
-                process = Thread(target= self._single_run, args=[domain_list, n, storage_dict, data_type, storage])
+                process = Thread(target= self._single_run, args=[domain_list, n, instance_count, storage_dict, data_type, storage])
                 process.start()
                 threads.append(process)
 
@@ -213,6 +225,3 @@ class DNS:
             if self.dns_info == other.dns_info:
                 return True
         return False
-
-if __name__ == '__main__':
-    print(DNS(dns_ip='1.1.1.1').stress(['google.com'],{}, {'1.1.1.1':{'valid':()}}, 'valid',LocalStorage(), 0))

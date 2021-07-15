@@ -6,8 +6,7 @@ MAIN_FOLDER = os.path.join(SRC_FOLDER, "main")
 TEST_FOLDER = os.path.join(MAIN_FOLDER,"test")
 MOCK_DATA_FOLDER = os.path.join(TEST_FOLDER, "mockData")
 
-UI_SKETCH_FOLDER = os.path.join(ROOT_FOLDER, "AppResources")
-UI_FINAL_FOLDER = os.path.join(ROOT_FOLDER, "src/UI")
+UI_FOLDER = os.path.join(ROOT_FOLDER, "AppResources")
 
 APP_RESOURCES_FOLDER = os.path.join(ROOT_FOLDER,'AppResources')
 ASSETS_FOLDER = os.path.join(APP_RESOURCES_FOLDER,'assets')
