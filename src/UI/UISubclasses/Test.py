@@ -1,6 +1,5 @@
 from threading import Thread
 from PyQt5 import QtCore, QtGui, QtWidgets
-import time
 from win10toast import ToastNotifier
 
 from settings import YANFEI_SMUG

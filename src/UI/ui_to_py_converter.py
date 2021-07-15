@@ -11,7 +11,7 @@ def convert(target_name:str):
 
 
 if __name__ == '__main__':
-    # for file in os.listdir(UI_SKETCH_FOLDER):
+    # for file in os.listdir(UI_FOLDER):
     #     convert(os.path.join(UI_FOLDER,file))
 
     # list_of_modified_files = ['AddDifferentDomains.ui', 'Benchmark_Properties.ui', 'NewDomainUI.ui','NewMain.ui','RemoveDifferentDomains.ui',
