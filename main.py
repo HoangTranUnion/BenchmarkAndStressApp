@@ -1,7 +1,7 @@
 from src.main.MainComponents.LocalStorage import LocalStorage
 from src.UI.UISubclasses.MainMenu import MainMenu
-
-from PyQt5 import QtWidgets
+from settings import YANFEI_SMUG
+from PyQt5 import QtWidgets, QtGui
 import sys
 
 
@@ -16,6 +16,8 @@ def main():
     # Now, Main Window should be loaded now.
     # And now we load the window.
     app = QtWidgets.QApplication(sys.argv)
+    app.setApplicationName("Benchmark and Stress")
+    app.setWindowIcon(QtGui.QIcon(YANFEI_SMUG))
     # MainWindow = QtWidgets.QMainWindow()
     # ui = Ui_MainWindow(new_storage)
     # ui.setupUi(MainWindow)
