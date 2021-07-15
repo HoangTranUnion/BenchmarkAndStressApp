@@ -7,6 +7,6 @@ def install(package):
 
 
 if __name__ == "__main__":
-    package_list = ['PyQt5','numpy','dnspython','datetime','dnspython[doh]','win10toast']
+    package_list = ['PyQt5','numpy','dnspython','datetime','dnspython[doh]','win10toast','requests']
     for package in package_list:
         install(package)
