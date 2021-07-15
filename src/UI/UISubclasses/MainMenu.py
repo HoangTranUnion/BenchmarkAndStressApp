@@ -23,15 +23,34 @@ class MainMenu(QtWidgets.QMainWindow, NewMain.Ui_MainWindow):
 
     def openNameserverWindow(self):
         if not self._ns.isVisible():
-            self._ns.show()
+            if self._test.isVisible():
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please close the test menu')
+                self.error_dialog.exec_()
+            else:
+                self._ns.show()
 
     def openDomainWindow(self):
         if not self._dm.isVisible():
-            self._dm.show()
+            if self._test.isVisible():
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please close the test menu')
+                self.error_dialog.exec_()
+            else:
+                self._dm.show()
 
     def openTest(self):
         if not self._test.isVisible():
-            self._test.show()
+            total_domain_amt = len(self.storage.get_valid_domains()) + len(self.storage.get_random_domains()) + len(self.storage.get_blocked_domains())
+            if len(self.storage.get_nameservers()) == 0 or total_domain_amt == 0:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Missing nameserver/domain. Please check your test inputs')
+                self.error_dialog.exec_()
+            else:
+                self._test.show()
 
     def closeEvent(self, a0: QtGui.QCloseEvent) -> None:
         quit_msg = "Are you sure you want to exit the program?"

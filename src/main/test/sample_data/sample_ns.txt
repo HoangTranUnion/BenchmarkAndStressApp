@@ -1,0 +1,5 @@
+1.1.1.1
+8.8.8.8
+randomples.sus
+https://dns.google/dns-query
+https://cloudflare-dns.com/dns-query
