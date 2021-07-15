@@ -15,7 +15,9 @@ Some references if you don't know what DNS and DNS over HTTPS (DoH) are:
 - datetime
 
 ## To convert the code into an app
+- Python 3.6+
 - [PyInstaller](https://pypi.org/project/pyinstaller/)
+- and hopefully no packages needed.
 
 To install, you can either use
 ```
