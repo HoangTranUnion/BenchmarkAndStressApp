@@ -140,6 +140,6 @@ While you are in the result screen, you can press on Save Report to save the rep
 ![result_xls](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/report_xls.PNG)
 
 # Issues
-If there is any issues, please open an issue so that I will be notified.
+If there are any issues, please open an Issue so that I will be notified.
 
 
