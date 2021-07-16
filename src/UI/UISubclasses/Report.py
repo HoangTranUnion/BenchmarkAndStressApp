@@ -70,41 +70,40 @@ class Report(QtWidgets.QMainWindow, ReportUI.Ui_MainWindow):
     def save_result(self, MainWindow):
         folder_selection = QtWidgets.QFileDialog.getExistingDirectory()
 
-        if len(folder_selection) == 0:
-            folder_selection = ROOT_FOLDER
+        if len(folder_selection) != 0:
+            cur_day = datetime.date.today().strftime("%Y%m%d")
 
-        cur_day = datetime.date.today().strftime("%Y%m%d")
+            cur_time = datetime.datetime.now().strftime('%H%M%S')
+            report_file = "Report_{}_{}_{}.xls".format(self.purpose, cur_day, cur_time)
+            full_report_dir = os.path.join(folder_selection, report_file)
 
-        cur_time = datetime.datetime.now().strftime('%H%M%S')
-        report_file = "Report_{}_{}_{}.xls".format(self.purpose, cur_day, cur_time)
-        full_report_dir = os.path.join(folder_selection, report_file)
+            wb = xlwt.Workbook()
+            sheet1 = wb.add_sheet("Report")
 
-        wb = xlwt.Workbook()
-        sheet1 = wb.add_sheet("Report")
+            sheet1.write(0, 0, 'URL / IP')
+            sheet1.write(0, 1, 'Type')
+            sheet1.write(0, 2, 'Max (ms)')
+            sheet1.write(0, 3, 'Min (ms)')
+            sheet1.write(0, 4, 'Avg (ms)')
+            sheet1.write(0, 5, 'Std (ms)')
 
-        sheet1.write(0, 0, 'URL / IP')
-        sheet1.write(0, 1, 'Type')
-        sheet1.write(0, 2, 'Max (ms)')
-        sheet1.write(0, 3, 'Min (ms)')
-        sheet1.write(0, 4, 'Avg (ms)')
-        sheet1.write(0, 5, 'Std (ms)')
+            offset = 0
+            for url_pos in range(len(self.data_sorted.keys())):
+                link = list(self.data_sorted.keys())[url_pos]
+                if link in self.err_ns:
+                    offset += 1
+                else:
+                    max_, min_, avg_, std_ = self.reporting_data[link]
+                    sheet1.write(url_pos + 1 - offset, 0, link)
+                    sheet1.write(url_pos + 1 - offset, 1, self.nameserver_type_sorted[link])
+                    sheet1.write(url_pos + 1 - offset, 2, max_)
+                    sheet1.write(url_pos + 1 - offset, 3, min_)
+                    sheet1.write(url_pos + 1 - offset, 4, avg_)
+                    sheet1.write(url_pos + 1 - offset, 5, std_)
 
-        offset = 0
-        for url_pos in range(len(self.data_sorted.keys())):
-            link = list(self.data_sorted.keys())[url_pos]
-            if link in self.err_ns:
-                offset += 1
-            else:
-                max_, min_, avg_, std_ = self.reporting_data[link]
-                sheet1.write(url_pos + 1 - offset, 0, link)
-                sheet1.write(url_pos + 1 - offset, 1, self.nameserver_type_sorted[link])
-                sheet1.write(url_pos + 1 - offset, 2, max_)
-                sheet1.write(url_pos + 1 - offset, 3, min_)
-                sheet1.write(url_pos + 1 - offset, 4, avg_)
-                sheet1.write(url_pos + 1 - offset, 5, std_)
 
-        wb.save(full_report_dir)
-        MainWindow.close()
+            wb.save(full_report_dir)
+            MainWindow.close()
 
     def closeEvent(self, a0):
         quit_msg = "Do you want to save the report before exiting?"
