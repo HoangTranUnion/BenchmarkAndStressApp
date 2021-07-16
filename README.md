@@ -133,10 +133,4 @@ While you are in the result screen, you can press on Save Report to save the rep
 # Issues
 If there is any issues, please open an issue so that I will be notified. Otherwise, if you can't open an issue, you can contact me via Discord, RemineTheCat#9866
 
-# TODO
-- [ ] Fix the lag at the beginning of the testing
-- [ ] Fix Warning window appear behind the Result window
-- [ ] Add more choices for randomizing link
-- [ ] Fix the bug where the app's icon does not correctly appear when the app is exported.
-
 
