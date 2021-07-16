@@ -107,5 +107,12 @@ class Report(QtWidgets.QMainWindow, ReportUI.Ui_MainWindow):
         MainWindow.close()
 
     def closeEvent(self, a0):
-        self.storage.clear_server_down_nameservers()
-        a0.accept()
+        quit_msg = "Do you want to save the report before exiting?"
+        reply = QtWidgets.QMessageBox.question(self, 'Message',
+                                               quit_msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+
+        if reply == QtWidgets.QMessageBox.Yes:
+            self.save_result(self)
+            a0.ignore()
+        else:
+            a0.accept()

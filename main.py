@@ -1,3 +1,6 @@
+__author__ = 'Hoang V. Tran'
+__version__ = '1.1'
+
 from src.main.MainComponents.LocalStorage import LocalStorage
 from src.UI.UISubclasses.MainMenu import MainMenu
 from settings import YANFEI_SMUG

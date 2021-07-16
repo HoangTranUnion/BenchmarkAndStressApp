@@ -102,7 +102,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
 
     def post_ping(self):
         toaster = ToastNotifier()
-        toaster.show_toast(title="Finished pinging!", msg="Please wait",
+        toaster.show_toast(title="Finished pinging!", msg="Please check the app",
                            icon_path=YANFEI_SMUG,
                            duration=5, threaded=True)
 
