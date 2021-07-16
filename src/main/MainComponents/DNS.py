@@ -140,7 +140,10 @@ class DNS:
                 print(line)
                 storage.cur_string = line
                 index += 1
-        storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
+        try:
+            storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
+        except KeyError:
+            print(storage_dict)
 
     def stress(self, domain_list, storage_dict, stats_dict, data_type, storage, instance_count):
         '''

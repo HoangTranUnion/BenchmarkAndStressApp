@@ -20,6 +20,10 @@ class LocalStorage:
         self.domains = copy.deepcopy(self.default_domains)
         self.default_config = {'instance_count': [], 'domains_used':0}
         self.config = copy.deepcopy(self.default_config)
+
+        self._test_object = None
+        self._pinged = False
+
         self.result = []
         self.records = []
         self.error_record = {err:[] for err in errors}
@@ -50,6 +54,22 @@ class LocalStorage:
     @cur_string.setter
     def cur_string(self, replacement:str):
         self._cur_string = replacement
+
+    @property
+    def pinged_ns(self):
+        return self._test_object
+
+    @pinged_ns.setter
+    def pinged_ns(self, test_obj):
+        self._test_object = test_obj
+
+    @property
+    def has_pinged(self) -> bool:
+        return self._pinged
+
+    @has_pinged.setter
+    def has_pinged(self, state):
+        self._pinged = state
 
     def add_nameserver(self, nameserver):
         self.nameservers.append(nameserver)

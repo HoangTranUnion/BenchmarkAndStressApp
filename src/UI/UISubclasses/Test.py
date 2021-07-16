@@ -3,8 +3,9 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from win10toast import ToastNotifier
 
 from settings import YANFEI_SMUG
-from src.UI.GeneratedUI import NewTestUI,Stress_Properties, Benchmark_Properties, Debug_Dialog, ReportUI
+from src.UI.GeneratedUI import NewTestUI,Stress_Properties, Benchmark_Properties
 from src.UI.UISubclasses import Debug, Report
+from src.main.MainComponents.DNSPing import DNSPing
 from src.main.MainComponents.DNSTest import DNSTest
 from src.main.MainComponents.LocalStorage import LocalStorage
 
@@ -26,8 +27,9 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         self._random_data = self.domain_data['random']
         self._blocked_data = self.domain_data['blocked']
 
-        self.pushButton_2.clicked.connect(self._benchmark)
-        self.pushButton_3.clicked.connect(self._stress)
+        self.pushButton.clicked.connect(self.ping)
+        self.pushButton_2.clicked.connect(self.benchmark)
+        self.pushButton_3.clicked.connect(self.stress)
         self.pushButton_4.clicked.connect(self.both)
 
         self._all_cur_text = []
@@ -76,29 +78,59 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         QtGui.QGuiApplication.processEvents()
         self._all_cur_text.clear()
 
-        self.worker_2 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test], self.storage, stress_instance)
+        self.worker_2 = WorkerTest([valid_test, random_test, blocked_test], self.storage, stress_instance)
         self.worker_2.start()
         self.worker_2.finished.connect(lambda: self.openReport('stress'))
         self._update_window(self.worker_2)
 
-    def _benchmark(self):
-        anotherRunning = self.storage.cur_test_state
-        if anotherRunning:
+    def ping(self):
+        if self.storage.has_pinged:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
-            self.error_dialog.showMessage('Please wait for other process to complete.')
+            self.error_dialog.showMessage('You have already pinged the nameservers.')
             self.error_dialog.exec_()
         else:
-            self.storage.reset()
-            self.storage.cur_string = ""
-            self.storage.cur_test_state = True
-            self.dialog_b = Dialog(self.storage)
-            self.bench_props_ui = Benchmark_Properties.Ui_Dialog()
-            self.bench_props_ui.setupUi(self.dialog_b)
-            self.bench_props_ui.buttonBox.accepted.connect(
-                lambda: self.accept_bench(self.bench_props_ui.lineEdit.text(), self.dialog_b))
-            self.bench_props_ui.buttonBox.rejected.connect(self.reject)
-            self.dialog_b.show()
+            toaster = ToastNotifier()
+            toaster.show_toast(title="Started pinging!", msg="Please wait",
+                               icon_path=YANFEI_SMUG,
+                               duration=5, threaded=True)
+
+            self.ping_worker = WorkerPing(self.nameserver_data, self.storage)
+            self.ping_worker.start()
+            self.ping_worker.finished.connect(self.post_ping)
+            self._update_window(self.ping_worker)
+
+    def post_ping(self):
+        toaster = ToastNotifier()
+        toaster.show_toast(title="Finished pinging!", msg="Please wait",
+                           icon_path=YANFEI_SMUG,
+                           duration=5, threaded=True)
+
+
+    def benchmark(self):
+        if not self.storage.has_pinged:
+            self.error_dialog = QtWidgets.QErrorMessage()
+            self.error_dialog.setWindowTitle('Warning')
+            self.error_dialog.showMessage('Please ping before testing.')
+            self.error_dialog.exec_()
+        else:
+            anotherRunning = self.storage.cur_test_state
+            if anotherRunning:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please wait for other process to complete.')
+                self.error_dialog.exec_()
+            else:
+                self.storage.reset()
+                self.storage.cur_string = ""
+                self.storage.cur_test_state = True
+                self.dialog_b = Dialog(self.storage)
+                self.bench_props_ui = Benchmark_Properties.Ui_Dialog()
+                self.bench_props_ui.setupUi(self.dialog_b)
+                self.bench_props_ui.buttonBox.accepted.connect(
+                    lambda: self.accept_bench(self.bench_props_ui.lineEdit.text(), self.dialog_b))
+                self.bench_props_ui.buttonBox.rejected.connect(self.reject)
+                self.dialog_b.show()
 
     def reject(self):
         self.storage.cur_test_state = False
@@ -110,12 +142,12 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
         toaster = ToastNotifier()
-        toaster.show_toast(title="Starting benchmarking!", msg="Please wait",
+        toaster.show_toast(title="Started benchmarking!", msg="Please wait",
                                    icon_path=YANFEI_SMUG,
                                    duration=5, threaded=True)
 
 
-        self.worker_b = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+        self.worker_b = WorkerTest([valid_test, random_test, blocked_test],
                                        self.storage, [1, 1, 1])
         self.worker_b.start()
         self.worker_b.finished.connect(lambda: self.openReport('benchmark'))
@@ -178,28 +210,34 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
 
         return new_mod_list
 
-    def _stress(self):
-        anotherRunning = self.storage.cur_test_state
-        if anotherRunning:
+    def stress(self):
+        if not self.storage.has_pinged:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
-            self.error_dialog.showMessage('Please wait for other process to complete.')
+            self.error_dialog.showMessage('Please ping before testing.')
             self.error_dialog.exec_()
         else:
-            self.storage.reset()
-            self.storage.cur_string = ""
-            self.storage.cur_test_state = True
-            self.dialog_s = Dialog(self.storage)
-            self.stress_props_ui = Stress_Properties.Ui_Dialog()
-            self.stress_props_ui.setupUi(self.dialog_s)
-            self.stress_props_ui.buttonBox.accepted.connect(
-                lambda: self.accept_stress(self.stress_props_ui.validEdit.text(),
-                                           self.stress_props_ui.RandomEdit.text(),
-                                           self.stress_props_ui.BlockedEdit.text(),
-                                           self.stress_props_ui.DomainEdit.text(),
-                                           self.dialog_s))
-            self.stress_props_ui.buttonBox.rejected.connect(self.reject)
-            self.dialog_s.show()
+            anotherRunning = self.storage.cur_test_state
+            if anotherRunning:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please wait for other process to complete.')
+                self.error_dialog.exec_()
+            else:
+                self.storage.reset()
+                self.storage.cur_string = ""
+                self.storage.cur_test_state = True
+                self.dialog_s = Dialog(self.storage)
+                self.stress_props_ui = Stress_Properties.Ui_Dialog()
+                self.stress_props_ui.setupUi(self.dialog_s)
+                self.stress_props_ui.buttonBox.accepted.connect(
+                    lambda: self.accept_stress(self.stress_props_ui.validEdit.text(),
+                                               self.stress_props_ui.RandomEdit.text(),
+                                               self.stress_props_ui.BlockedEdit.text(),
+                                               self.stress_props_ui.DomainEdit.text(),
+                                               self.dialog_s))
+                self.stress_props_ui.buttonBox.rejected.connect(self.reject)
+                self.dialog_s.show()
 
     def _verify_input(self, txt):
         return len(txt) != 0 and txt.isdigit()
@@ -232,17 +270,17 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
 
             try:
                 toaster = ToastNotifier()
-                toaster.show_toast(title="Starting stressing!", msg="Please wait",
+                toaster.show_toast(title="Started stressing!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=5, threaded=True)
             except AttributeError:
                 pass
 
-            self.worker_s = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+            self.worker_s = WorkerTest([valid_test, random_test, blocked_test],
                                    self.storage, self.instance_count)
             self.worker_s.start()
-            self._update_window(self.worker_s)
             self.worker_s.finished.connect(lambda: self.openReport('stress'))
+            self._update_window(self.worker_s)
         else:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
@@ -251,27 +289,33 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             dialog.show()
 
     def both(self):
-        anotherRunning = self.storage.cur_test_state
-        if anotherRunning:
+        if not self.storage.has_pinged:
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
-            self.error_dialog.showMessage('Please wait for other process to complete.')
+            self.error_dialog.showMessage('Please ping before testing.')
             self.error_dialog.exec_()
         else:
-            self.storage.reset()
-            self.storage.cur_string = ""
-            self.storage.cur_test_state = True
-            self.dialog_both = Dialog(self.storage)
-            self.both_props_ui = Stress_Properties.Ui_Dialog()
-            self.both_props_ui.setupUi(self.dialog_both)
-            self.both_props_ui.buttonBox.accepted.connect(
-                lambda: self.accept_both(self.both_props_ui.validEdit.text(),
-                                         self.both_props_ui.RandomEdit.text(),
-                                         self.both_props_ui.BlockedEdit.text(),
-                                         self.both_props_ui.DomainEdit.text(),
-                                         self.dialog_both))
-            self.both_props_ui.buttonBox.rejected.connect(self.reject)
-            self.dialog_both.show()
+            anotherRunning = self.storage.cur_test_state
+            if anotherRunning:
+                self.error_dialog = QtWidgets.QErrorMessage()
+                self.error_dialog.setWindowTitle('Warning')
+                self.error_dialog.showMessage('Please wait for other process to complete.')
+                self.error_dialog.exec_()
+            else:
+                self.storage.reset()
+                self.storage.cur_string = ""
+                self.storage.cur_test_state = True
+                self.dialog_both = Dialog(self.storage)
+                self.both_props_ui = Stress_Properties.Ui_Dialog()
+                self.both_props_ui.setupUi(self.dialog_both)
+                self.both_props_ui.buttonBox.accepted.connect(
+                    lambda: self.accept_both(self.both_props_ui.validEdit.text(),
+                                             self.both_props_ui.RandomEdit.text(),
+                                             self.both_props_ui.BlockedEdit.text(),
+                                             self.both_props_ui.DomainEdit.text(),
+                                             self.dialog_both))
+                self.both_props_ui.buttonBox.rejected.connect(self.reject)
+                self.dialog_both.show()
 
     def accept_both(self, valid_ic_txt, random_ic_txt, blocked_ic_txt, domain_amt_txt, dialog):
         self.textBrowser.clear()
@@ -302,13 +346,13 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
 
             try:
                 toaster = ToastNotifier()
-                toaster.show_toast(title="Starting both tests!", msg="Please wait",
+                toaster.show_toast(title="Started both tests!", msg="Please wait",
                                icon_path=YANFEI_SMUG,
                                duration=5, threaded=True)
             except AttributeError:
                 pass
 
-            self.worker_both_1 = WorkerTest(self.nameserver_data, [valid_test, random_test, blocked_test],
+            self.worker_both_1 = WorkerTest([valid_test, random_test, blocked_test],
                                    self.storage, [1,1,1])
             self.worker_both_1.start()
             self._update_window(self.worker_both_1)
@@ -331,11 +375,25 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             a0.accept()
 
 
+class WorkerPing(QtCore.QThread):
+    def __init__(self, ns, storage):
+        super(WorkerPing, self).__init__()
+
+        self.ns = ns
+        self.storage = storage
+        self.running = True
+
+    def run(self):
+        self.storage.pinged_ns = DNSPing(self.ns, self.storage)
+        self.storage.has_pinged = True
+        self.running = False
+
+
+
 class WorkerTest(QtCore.QThread):
-    def __init__(self, nameserver, data_list, storage, inst_count_list):
+    def __init__(self, data_list, storage, inst_count_list):
         super(WorkerTest, self).__init__()
 
-        self.ns = nameserver
         self.valid_data = data_list[0]
         self.random_data = data_list[1]
         self.blocked_data = data_list[2]
@@ -348,9 +406,12 @@ class WorkerTest(QtCore.QThread):
         valid_inst = self.inst_count_list[0]
         random_inst = self.inst_count_list[1]
         block_inst = self.inst_count_list[2]
-        valid_test = DNSTest(self.ns, self.valid_data, self.storage, 'valid', valid_inst)
-        random_test = DNSTest(self.ns, self.random_data, self.storage, 'random', random_inst)
-        block_test = DNSTest(self.ns, self.blocked_data, self.storage, 'blocked', block_inst)
+
+        pinged_inst = self.storage.pinged_ns
+
+        valid_test = DNSTest(pinged_inst, self.valid_data, self.storage, 'valid', valid_inst)
+        random_test = DNSTest(pinged_inst, self.random_data, self.storage, 'random', random_inst)
+        block_test = DNSTest(pinged_inst, self.blocked_data, self.storage, 'blocked', block_inst)
 
         thread_1 = Thread(target = valid_test.run)
         thread_2 = Thread(target = random_test.run)
