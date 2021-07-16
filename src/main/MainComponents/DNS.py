@@ -79,7 +79,7 @@ class DNS:
             # - answer.response.time.total_seconds() returns the time in seconds, type: float
             # - int + datetime.timedelta WILL cause TypeError! :PekoraTired:
 
-            answer = my_resolver.resolve(domain)
+            answer = my_resolver.resolve(domain, lifetime = 1)
             time_type = type(answer.response.time)
             if time_type == timedelta:
                 return answer.response.time.total_seconds() * 1000
@@ -115,14 +115,18 @@ class DNS:
         index = 0
         while running and index < len(domain_list):
             domain = domain_list[index]
-            storage.update_counter()
             try:
                 res = self._run_time(self.dns_info, domain)
                 domain_run_time.append(res)
                 if type(res) != str:
                     filtered.append(res)
-                line = "{} - Thread {}/{} - Domain {}/{} - {} - resolved".format(self.dns_info, instance + 1, total_num_inst,
-                                                                      index + 1, len(domain_list), domain)
+                    line = "{} - Thread {}/{} - Domain {}/{} - {} - resolved".format(self.dns_info, instance + 1, total_num_inst,
+                                                             index + 1, len(domain_list), domain)
+                    if data_type == 'random':
+                        storage.add_random_resolved(domain)
+                else:
+                    line = "{} - Thread {}/{} - Domain {}/{} - {} - timeout ".format(self.dns_info, instance + 1, total_num_inst,
+                                                             index + 1, len(domain_list), domain)
                 # text_browser.append(line + "\n")
                 # text_browser.show()
                 print(line)
@@ -139,8 +143,12 @@ class DNS:
                 # text_browser.show()
                 print(line)
                 storage.cur_string = line
+                storage.add_unresolved_domains(domain, data_type)
                 index += 1
-        storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
+        try:
+            storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
+        except KeyError:
+            print(storage_dict)
 
     def stress(self, domain_list, storage_dict, stats_dict, data_type, storage, instance_count):
         '''

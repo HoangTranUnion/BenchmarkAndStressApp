@@ -89,10 +89,10 @@ class Connection:
                               "Chrome/91.0.4472.114 Safari/537.36"})
             sc = r.status_code
             if str(sc).startswith("4") or str(sc).startswith("5"):
-                return 1
-            return 0
+                return False
+            return True
         except requests.ConnectionError:
-            return 1
+            return False
 
     def _ping(self, ipaddress):
         proc = subprocess.Popen(

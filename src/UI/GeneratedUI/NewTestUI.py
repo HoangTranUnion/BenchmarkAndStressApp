@@ -14,21 +14,24 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_MainWindow(object):
     def setupUi(self, MainWindow):
         MainWindow.setObjectName("MainWindow")
-        MainWindow.setFixedSize(570, 638)
+        MainWindow.setFixedSize(649, 665)
         self.centralwidget = QtWidgets.QWidget(MainWindow)
         self.centralwidget.setObjectName("centralwidget")
         self.pushButton_2 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_2.setGeometry(QtCore.QRect(20, 20, 151, 41))
+        self.pushButton_2.setGeometry(QtCore.QRect(180, 20, 131, 41))
         self.pushButton_2.setObjectName("pushButton_2")
         self.pushButton_3 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_3.setGeometry(QtCore.QRect(210, 20, 151, 41))
+        self.pushButton_3.setGeometry(QtCore.QRect(340, 20, 131, 41))
         self.pushButton_3.setObjectName("pushButton_3")
         self.pushButton_4 = QtWidgets.QPushButton(self.centralwidget)
-        self.pushButton_4.setGeometry(QtCore.QRect(400, 20, 151, 41))
+        self.pushButton_4.setGeometry(QtCore.QRect(500, 20, 131, 41))
         self.pushButton_4.setObjectName("pushButton_4")
         self.textBrowser = QtWidgets.QTextBrowser(self.centralwidget)
-        self.textBrowser.setGeometry(QtCore.QRect(20, 80, 531, 511))
+        self.textBrowser.setGeometry(QtCore.QRect(20, 80, 611, 561))
         self.textBrowser.setObjectName("textBrowser")
+        self.pushButton = QtWidgets.QPushButton(self.centralwidget)
+        self.pushButton.setGeometry(QtCore.QRect(20, 20, 131, 41))
+        self.pushButton.setObjectName("pushButton")
         MainWindow.setCentralWidget(self.centralwidget)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
@@ -43,6 +46,7 @@ class Ui_MainWindow(object):
         self.pushButton_2.setText(_translate("MainWindow", "Benchmark"))
         self.pushButton_3.setText(_translate("MainWindow", "Stress"))
         self.pushButton_4.setText(_translate("MainWindow", "Both"))
+        self.pushButton.setText(_translate("MainWindow", "Ping"))
 
 
 if __name__ == "__main__":

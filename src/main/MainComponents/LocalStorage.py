@@ -20,28 +20,18 @@ class LocalStorage:
         self.domains = copy.deepcopy(self.default_domains)
         self.default_config = {'instance_count': [], 'domains_used':0}
         self.config = copy.deepcopy(self.default_config)
+
+        self._test_object = None
+        self._pinged = False
+
         self.result = []
         self.records = []
         self.error_record = {err:[] for err in errors}
+        self.unable_resolve_record = {dom_type:[] for dom_type in self._domain_types if dom_type != 'random'}
+        self.random_resolved = []
         self.test_state = False
 
         self._cur_string = ""
-        self._test_counter = 0
-
-    def _update_total(self):
-        inst_list = self.config['instance_count']
-        ns_len = len(self.nameservers)
-        if len(inst_list) != 0: # in theory, should only happen when we specify the number of instances
-            return sum([val * ns_len * self.config['domains_used'] for val in inst_list])
-        else:
-            return 0
-
-    def update_counter(self):
-        self._test_counter += 1
-
-    def get_progress(self):
-        print(self._update_total())
-        return math.floor(self._test_counter / self._update_total())
 
     @property
     def cur_string(self) -> str:
@@ -51,29 +41,40 @@ class LocalStorage:
     def cur_string(self, replacement:str):
         self._cur_string = replacement
 
+    @property
+    def pinged_ns(self):
+        return self._test_object
+
+    @pinged_ns.setter
+    def pinged_ns(self, test_obj):
+        self._test_object = test_obj
+
+    @property
+    def has_pinged(self) -> bool:
+        return self._pinged
+
+    @has_pinged.setter
+    def has_pinged(self, state):
+        self._pinged = state
+
     def add_nameserver(self, nameserver):
         self.nameservers.append(nameserver)
-        self._update_total()
 
     def add_domain(self, domain, domain_type):
         if domain_type not in self._domain_types:
             raise KeyError("{} is an invalid key for domains".format(domain_type))
         self.domains[domain_type].append(domain)
-        self._update_total()
 
     def add_nameservers(self, nameservers:list):
         for nameserver in nameservers:
             self.nameservers.append(nameserver)
-        self._update_total()
 
     def add_domains(self, domains:list, domain_type):
         for domain in domains:
             self.domains[domain_type].append(domain)
-        self._update_total()
 
     def add_domain_first(self, domain, domain_type):
         self.domains[domain_type].insert(0, domain)
-        self._update_total()
 
     def add_nameserver_types(self, ns_dict):
         self.nameservers_types = ns_dict
@@ -82,23 +83,18 @@ class LocalStorage:
         new_dm = reversed(domains)
         for elem in new_dm:
             self.domains[domain_type].insert(0, elem)
-        self._update_total()
 
     def remove_nameserver(self, nameserver):
         self.nameservers.remove(nameserver)
-        self._update_total()
 
     def remove_all_nameservers(self):
         self.nameservers.clear()
-        self._update_total()
 
     def remove_domains(self, domain, domain_type):
         self.domains[domain_type].remove(domain)
-        self._update_total()
 
     def remove_all_domains(self, type):
         self.domains[type].clear()
-        self._update_total()
 
     def replace_nameservers(self, new_nameser_set):
         self.nameservers = new_nameser_set
@@ -167,7 +163,6 @@ class LocalStorage:
         if keyword not in VALID_CONFIG_KEYWORDS:
             raise KeyError("{} is an invalid keyword".format(keyword))
         self.config[keyword] = value
-        self._update_total()
 
     def get_config(self):
         return self.config
@@ -193,6 +188,9 @@ class LocalStorage:
     def reset(self):
         self.result.clear()
         self.records.clear()
+        self.clear_server_down_nameservers()
+        self.clear_unresolved()
+        self.clear_random_resolved()
         self.config = copy.deepcopy(self.default_config)
 
     def copy_results(self):
@@ -206,3 +204,27 @@ class LocalStorage:
         for record in self.records:
             new_ls.store_records(record)
         return new_ls
+
+    def add_unresolved_domains(self, domain, dom_type):
+        if dom_type != 'random':
+            dom_type_urr_domains = self.unable_resolve_record[dom_type]
+            if domain not in dom_type_urr_domains:
+                dom_type_urr_domains.append(domain)
+
+    def get_unresolved_domains(self):
+        return self.unable_resolve_record
+
+    def clear_unresolved(self):
+        for key in self.unable_resolve_record:
+            self.unable_resolve_record[key].clear()
+
+    def add_random_resolved(self, domain):
+        if domain not in self.random_resolved:
+            self.random_resolved.append(domain)
+
+    def get_random_resolved(self):
+        return self.random_resolved
+
+    def clear_random_resolved(self):
+        self.random_resolved.clear()
+
