@@ -6,7 +6,7 @@ Some references if you don't know what DNS and DNS over HTTPS (DoH) are:
 
 # Changes
 ## Version 1.1
-- New [Test UI](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/NewTestUI.PNG)! Users would now have to ping the nameservers prior to testing, but it would take significantly less time to run a test than before (that is, if you are testing on a large number of nameservers).
+- New [Test UI](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/NewTestUI.PNG)! Users would now have to ping the nameservers prior to testing, but it would take significantly less time to run multiple tests than before (that is, if you are testing on a large number of nameservers).
 - Warning dialog after testing will now be more informative - it will show what valid and blocked domain could not be resolved. For random ones, it will show what domains _could_ be resolved (partly because 99% of those domains could not be resolved anyway - that would not be informative).
 - Fixes on Report UI where reports are still being automatically saved, although the user clicked on X button.
 - Upon exiting Report UI, user will be asked if they want to save the report or not.
@@ -44,8 +44,8 @@ I have also made a script, which is [libraries_setup.py](https://github.com/Hoan
 Just run main.py, granted packages have been installed.
 
 # Converting the code to app
-Just run setup.py, granted PyInstaller has been installed. After the script finished running, go to folder named dist and you will be able to find an app named main.exe in there.
-After that, just run the app. The app will not require any packages to be installed to be able to run; however, it is recommended that you keep the build folder and file main.spec intact.
+Just run setup.py, granted PyInstaller has been installed. After the script finished running, go to folder named dist and you will be able to find an app in there.
+After that, just run the app. The app will not require any packages to be installed to be able to run; however, it is recommended that you keep the build folder and file .spec file intact.
 
 # Using the app
 Upon running main.py or opening the app, the following window should appear.
