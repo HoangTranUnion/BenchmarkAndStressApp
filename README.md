@@ -4,6 +4,15 @@ Some references if you don't know what DNS and DNS over HTTPS (DoH) are:
 - [Domain Name System (DNS)](https://www.cloudflare.com/learning/dns/what-is-dns/)
 - [DNS over HTTPS (DoH)](https://searchsecurity.techtarget.com/definition/DNS-over-HTTPS-DoH)
 
+# Changes
+## Version 1.1
+- New [Test UI](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/NewTestUI.PNG)! Users would now have to ping the nameservers prior to testing, but it would take significantly less time to run a test than before (that is, if you are testing on a large number of nameservers).
+- Warning dialog after testing will now be more informative - it will show what valid and blocked domain could not be resolved. For random ones, it will show what domains _could_ be resolved (partly because 99% of those domains could not be resolved anyway - that would not be informative).
+- Fixes on Report UI where reports are still being automatically saved, although the user clicked on X button.
+- Upon exiting Report UI, user will be asked if they want to save the report or not.
+- Added app icon when exporting the code to .exe. Not sure how to make the window icon works without having to make a lot of steps, though.
+- Relocated the Warning dialog, so now it won't be fully covered by the report UI anymore.
+
 # Requirements:
 ## To run the code
 - Python 3.6+
@@ -17,7 +26,7 @@ Some references if you don't know what DNS and DNS over HTTPS (DoH) are:
 ## To convert the code into an app
 - Python 3.6+
 - [PyInstaller](https://pypi.org/project/pyinstaller/)
-- and hopefully no packages needed.
+- and hopefully no other packages are needed.
 
 To install, you can either use
 ```
@@ -131,6 +140,6 @@ While you are in the result screen, you can press on Save Report to save the rep
 ![result_xls](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/report_xls.PNG)
 
 # Issues
-If there is any issues, please open an issue so that I will be notified. Otherwise, if you can't open an issue, you can contact me via Discord, RemineTheCat#9866
+If there are any issues, please open an Issue so that I will be notified.
 
 
