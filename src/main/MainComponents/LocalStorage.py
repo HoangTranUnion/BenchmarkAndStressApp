@@ -1,15 +1,10 @@
 from settings import VALID_CONFIG_KEYWORDS
-import copy, math
+import copy
 
 
-class LocalStorage:
+class AppStorage:
     '''
     Stores all the information needed by the application.
-    Attributes
-    - nameservers: The nameservers that are being tested
-    - nameservers_types: The type(s) of the nameserver(s), which is/are either 'ip' or 'doh'.
-        Defaults as None, will be updated as the test is conducted.
-    -
     '''
     def __init__(self):
         self.nameservers = []
@@ -17,7 +12,7 @@ class LocalStorage:
         self._domain_types = ['valid', 'random', 'blocked']
         errors = ['ServerDown','UnableToResolve']
         self.default_domains = {key:[] for key in self._domain_types}
-        self.domains = copy.deepcopy(self.default_domains)
+        self.domains : dict = copy.deepcopy(self.default_domains)
         self.default_config = {'instance_count': [], 'domains_used':0}
         self.config = copy.deepcopy(self.default_config)
 
@@ -65,6 +60,15 @@ class LocalStorage:
             raise KeyError("{} is an invalid key for domains".format(domain_type))
         self.domains[domain_type].append(domain)
 
+    def add_valid_domain(self, domain):
+        self.domains['valid'].append(domain)
+
+    def add_random_domain(self, domain):
+        self.domains['random'].append(domain)
+
+    def add_blocked_domain(self, domain):
+        self.domains['blocked'].append(domain)
+
     def add_nameservers(self, nameservers:list):
         for nameserver in nameservers:
             self.nameservers.append(nameserver)
@@ -73,8 +77,41 @@ class LocalStorage:
         for domain in domains:
             self.domains[domain_type].append(domain)
 
+    def add_valid_domains(self, domains):
+        for domain in domains:
+            self.domains['valid'].append(domain)
+
+    def add_random_domains(self, domains):
+        for domain in domains:
+            self.domains['random'].append(domain)
+
+    def add_blocked_domains(self, domains):
+        for domain in domains:
+            self.domains['blocked'].append(domain)
+
     def add_domain_first(self, domain, domain_type):
         self.domains[domain_type].insert(0, domain)
+
+    def add_valid_domain_first(self, domain):
+        '''
+        Adds the domain to the top of the valid list
+        :param domain: A domain to be added
+        '''
+        self.domains['valid'].insert(0, domain)
+
+    def add_random_domain_first(self, domain):
+        '''
+        Adds the domain to the top of the random list
+        :param domain: A domain to be added
+        '''
+        self.domains['random'].insert(0, domain)
+
+    def add_blocked_domain_first(self, domain):
+        '''
+        Adds the domain to the top of the blocked list
+        :param domain: A domain to be added
+        '''
+        self.domains['blocked'].insert(0, domain)
 
     def add_nameserver_types(self, ns_dict):
         self.nameservers_types = ns_dict
@@ -83,6 +120,21 @@ class LocalStorage:
         new_dm = reversed(domains)
         for elem in new_dm:
             self.domains[domain_type].insert(0, elem)
+
+    def add_valid_domains_first(self, domains: list):
+        new_dm = reversed(domains)
+        for elem in new_dm:
+            self.domains['valid'].insert(0, elem)
+
+    def add_random_domains_first(self, domains: list):
+        new_dm = reversed(domains)
+        for elem in new_dm:
+            self.domains['random'].insert(0, elem)
+
+    def add_blocked_domains_first(self, domains: list):
+        new_dm = reversed(domains)
+        for elem in new_dm:
+            self.domains['blocked'].insert(0, elem)
 
     def remove_nameserver(self, nameserver):
         self.nameservers.remove(nameserver)
@@ -93,8 +145,26 @@ class LocalStorage:
     def remove_domains(self, domain, domain_type):
         self.domains[domain_type].remove(domain)
 
+    def remove_valid_domain(self, domain):
+        self.domains['valid'].remove(domain)
+
+    def remove_random_domain(self, domain):
+        self.domains['random'].remove(domain)
+
+    def remove_blocked_domain(self, domain):
+        self.domains['blocked'].remove(domain)
+
     def remove_all_domains(self, type):
         self.domains[type].clear()
+
+    def remove_all_valid_domains(self):
+        self.domains['valid'].clear()
+
+    def remove_all_random_domains(self):
+        self.domains['random'].clear()
+
+    def remove_all_blocked_domains(self):
+        self.domains['blocked'].clear()
 
     def replace_nameservers(self, new_nameser_set):
         self.nameservers = new_nameser_set
@@ -194,7 +264,7 @@ class LocalStorage:
         self.config = copy.deepcopy(self.default_config)
 
     def copy_results(self):
-        new_ls = LocalStorage()
+        new_ls = AppStorage()
         new_ls.add_nameserver_types(copy.deepcopy(self.nameservers_types))
         for ns in self.error_record['ServerDown']:
             new_ls.update_server_down(ns)

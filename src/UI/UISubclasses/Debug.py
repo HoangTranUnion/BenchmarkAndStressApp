@@ -2,14 +2,14 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 from PyQt5.QtWidgets import QDesktopWidget
 
 from src.UI.GeneratedUI import Debug_Dialog
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 
 
 class Debug(QtWidgets.QDialog, Debug_Dialog.Ui_Dialog):
     '''
     A subclass Dialog of the Debug_Dialog.
     '''
-    def __init__(self, storage: LocalStorage):
+    def __init__(self, storage: AppStorage):
         QtWidgets.QDialog.__init__(self)
         self.setupUi(self)
         self.storage = storage

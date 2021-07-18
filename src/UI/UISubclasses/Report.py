@@ -2,7 +2,7 @@ from PyQt5 import QtWidgets
 from PyQt5.QtWidgets import QTableWidgetItem
 
 from src.UI.GeneratedUI import ReportUI
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 from src.main.MainComponents.CalculateResults import calculate_res
 import datetime
 import os
@@ -11,7 +11,7 @@ from settings import ROOT_FOLDER
 
 
 class Report(QtWidgets.QMainWindow, ReportUI.Ui_MainWindow):
-    def __init__(self, storage: LocalStorage, purpose, parent = None):
+    def __init__(self, storage: AppStorage, purpose, parent = None):
         try:
             super(Report, self).__init__(parent)
             self.setupUi(self)

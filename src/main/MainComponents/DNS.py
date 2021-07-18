@@ -1,6 +1,6 @@
 # dependencies: datetime, dnspython
 # after installing dnspython, PLEASE install dnspython[doh], or DoH will NEVER work.
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 from src.main.MainComponents.connection import Connection
 import dns.message
 import dns.resolver
@@ -19,7 +19,7 @@ class UnableToResolve(Exception):
 
 
 class DNS:
-    def __init__(self,storage: LocalStorage,  **kwargs):
+    def __init__(self, storage: AppStorage, **kwargs):
         '''
         Initialize the Domain class.
         NOTE: If domain_ip and domain_url is both not None, domain_ip will be prioritized.
@@ -88,7 +88,7 @@ class DNS:
 
         # Intentional bare except.
         # dns.exception is not a class that inherits BaseException class
-        # any exception from that usually means that the domain cannot be resolved.
+        # any exception from that usually means that the domain cannot be resolved under the given nameserver.
 
         # except dns.exception as e:
         #     print(e)
@@ -102,7 +102,7 @@ class DNS:
                 raise UnableToResolve("Unable to resolve the given domain")
             return "Invalid"
 
-    def _single_run(self, domain_list, instance: int, total_num_inst, storage_dict:dict, data_type, storage:LocalStorage):
+    def _single_run(self, domain_list, instance: int, total_num_inst, storage_dict:dict, data_type, storage:AppStorage):
         '''
             Runs a single instance of testing the nameserver under the given domain list
             :param domain_list: The list of domains that are being used for testing
@@ -145,10 +145,7 @@ class DNS:
                 storage.cur_string = line
                 storage.add_unresolved_domains(domain, data_type)
                 index += 1
-        try:
-            storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
-        except KeyError:
-            print(storage_dict)
+        storage_dict[self.dns_info][data_type][instance] = (domain_run_time, filtered)
 
     def stress(self, domain_list, storage_dict, stats_dict, data_type, storage, instance_count):
         '''

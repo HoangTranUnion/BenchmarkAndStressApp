@@ -3,6 +3,9 @@ import dns.inet
 
 
 class DNSPing:
+    '''
+    Pings the listed nameservers.
+    '''
     def __init__(self, ns_list, storage):
         self._ns_list = ns_list
         self._dns_list = [self._create_dns_obj(storage, nameserver) for nameserver in ns_list]
@@ -10,12 +13,13 @@ class DNSPing:
         self.storage = storage
         self.storage.add_nameserver_types(self._dns_types)
 
-    def get(self):
-        return self._ns_list, self._dns_list
-
     @staticmethod
     def _create_dns_obj(storage, nameserver):
         if dns.inet.is_address(nameserver):
             return DNS.ip(storage, nameserver)
         else:
             return DNS.doh_url(storage, nameserver)
+
+    def get(self):
+        return self._ns_list, self._dns_list
+

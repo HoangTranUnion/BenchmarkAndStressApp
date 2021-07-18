@@ -4,11 +4,11 @@ from PyQt5 import QtWidgets, QtGui
 
 from src.UI.GeneratedUI import NewMain
 from src.UI.UISubclasses import Nameserver, Domains, Test
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 
 
 class MainMenu(QtWidgets.QMainWindow, NewMain.Ui_MainWindow):
-    def __init__(self, storage: LocalStorage, parent = None):
+    def __init__(self, storage: AppStorage, parent = None):
         super(MainMenu, self).__init__(parent)
         self.storage = storage
         # Set up the user interface from Designer.

@@ -1,7 +1,7 @@
 __author__ = 'Hoang V. Tran'
 __version__ = '1.1'
 
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 from src.UI.UISubclasses.MainMenu import MainMenu
 from settings import YANFEI_SMUG
 from PyQt5 import QtWidgets, QtGui
@@ -13,7 +13,7 @@ def main():
 
     # This storage will (hypothetically) carry data through windows.
 
-    new_storage = LocalStorage()
+    new_storage = AppStorage()
 
     # Storage is there.
     # Now, Main Window should be loaded now.

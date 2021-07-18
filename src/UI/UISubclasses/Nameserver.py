@@ -2,11 +2,11 @@ from PyQt5 import QtCore, QtWidgets
 
 from src.UI.GeneratedUI import NameserverMain, SetNameserver
 from src.UI.UISubclasses.AddNameservers import AddNameservers
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 
 
 class Nameserver(QtWidgets.QMainWindow, NameserverMain.Ui_MainWindow):
-    def __init__(self, storage: LocalStorage, parent = None):
+    def __init__(self, storage: AppStorage, parent = None):
         super(Nameserver, self).__init__(parent)
         self.setupUi(self)
 

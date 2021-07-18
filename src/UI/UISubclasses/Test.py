@@ -6,26 +6,25 @@ from settings import YANFEI_SMUG
 from src.UI.GeneratedUI import NewTestUI,Stress_Properties, Benchmark_Properties
 from src.UI.UISubclasses import Debug, Report
 from src.main.MainComponents.DNSPing import DNSPing
-from src.main.MainComponents.DNSTest import DNSTest
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.DNSTest import DNSTest,ValidTest, RandomTest, BlockedTest
+from src.main.MainComponents.LocalStorage import AppStorage
 
 
 class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
     DOMAIN_DEFAULT_AMT_STR = '50'
     INSTANCE_DEFAULT_AMT_STR = '0'
 
-    def __init__(self, local_storage: LocalStorage, parent = None):
+    def __init__(self, local_storage: AppStorage, parent = None):
         super(Test, self).__init__(parent)
         self.setupUi(self)
 
         self.storage = local_storage
         self.testing_data = self.storage.get_all()
-        self.nameserver_data = self.testing_data[0]
-        self.domain_data = self.testing_data[1]
+        self.nameserver_data = self.storage.get_nameservers()
 
-        self._valid_data = self.domain_data['valid']
-        self._random_data = self.domain_data['random']
-        self._blocked_data = self.domain_data['blocked']
+        self._valid_data = self.storage.get_valid_domains()
+        self._random_data = self.storage.get_random_domains()
+        self._blocked_data = self.storage.get_blocked_domains()
 
         self.pushButton.clicked.connect(self.ping)
         self.pushButton_2.clicked.connect(self.benchmark)
@@ -409,9 +408,9 @@ class WorkerTest(QtCore.QThread):
 
         pinged_inst = self.storage.pinged_ns
 
-        valid_test = DNSTest(pinged_inst, self.valid_data, self.storage, 'valid', valid_inst)
-        random_test = DNSTest(pinged_inst, self.random_data, self.storage, 'random', random_inst)
-        block_test = DNSTest(pinged_inst, self.blocked_data, self.storage, 'blocked', block_inst)
+        valid_test = ValidTest(pinged_inst, self.valid_data, self.storage, valid_inst)
+        random_test = RandomTest(pinged_inst, self.random_data, self.storage, random_inst)
+        block_test = BlockedTest(pinged_inst, self.blocked_data, self.storage, block_inst)
 
         thread_1 = Thread(target = valid_test.run)
         thread_2 = Thread(target = random_test.run)
@@ -427,7 +426,7 @@ class WorkerTest(QtCore.QThread):
 
 
 class Dialog(QtWidgets.QDialog):
-    def __init__(self, storage:LocalStorage):
+    def __init__(self, storage:AppStorage):
         super(Dialog, self).__init__()
         self.storage = storage
 

@@ -3,12 +3,12 @@ import random
 
 from src.UI.GeneratedUI import NewDomainUI, SetDomain, RemoveDifferentDomains, AddDifferentDomains, random_add, ShuffleDomains
 from src.UI.UISubclasses.AddDomains import AddDomains
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 from src.main.MainComponents.DomainRandomizer import domain_random
 
 
 class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
-    def __init__(self, storage: LocalStorage, parent = None):
+    def __init__(self, storage: AppStorage, parent = None):
         super(Domain, self).__init__(parent)
         self.setupUi(self)
 
@@ -114,11 +114,13 @@ class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
                 if c not in cur_data:
                     if section == 'valid':
                         self.ValidList.addItem(c)
+                        self.storage.add_valid_domain(c)
                     elif section == 'random':
                         self.RandomList.addItem(c)
+                        self.storage.add_random_domain(c)
                     else:
                         self.BlockList.addItem(c)
-                    self.storage.add_domain(c, section)
+                        self.storage.add_blocked_domain(c)
         self.window.close()
 
     def modifyContent(self, dialog, content, select_dict):
@@ -177,15 +179,15 @@ class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
 
     def remove_valid(self):
         self.ValidList.clear()
-        self.storage.remove_all_domains('valid')
+        self.storage.remove_all_valid_domains()
 
     def remove_random(self):
         self.RandomList.clear()
-        self.storage.remove_all_domains('random')
+        self.storage.remove_all_random_domains()
 
     def remove_blocked(self):
         self.BlockList.clear()
-        self.storage.remove_all_domains('blocked')
+        self.storage.remove_all_blocked_domains()
 
     def shuffle(self):
         self.shuffle_dialog = QtWidgets.QDialog()
@@ -200,20 +202,20 @@ class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
     def shuffle_valid(self):
         cur_valid_storage = self.storage.get_valid_domains()
         random.shuffle(cur_valid_storage)
-        self.storage.remove_all_domains('valid')
-        self.storage.add_domains(cur_valid_storage, 'valid')
+        self.storage.remove_all_valid_domains()
+        self.storage.add_valid_domains(cur_valid_storage)
         self.refresh('valid')
 
     def shuffle_random(self):
         cur_random_storage = self.storage.get_random_domains()
         random.shuffle(cur_random_storage)
-        self.storage.remove_all_domains('random')
-        self.storage.add_domains(cur_random_storage, 'random')
+        self.storage.remove_all_random_domains()
+        self.storage.add_random_domains(cur_random_storage)
         self.refresh('random')
 
     def shuffle_blocked(self):
         cur_blocked_storage = self.storage.get_blocked_domains()
         random.shuffle(cur_blocked_storage)
-        self.storage.remove_all_domains('blocked')
-        self.storage.add_domains(cur_blocked_storage, 'blocked')
+        self.storage.remove_all_blocked_domains()
+        self.storage.add_blocked_domains(cur_blocked_storage)
         self.refresh('blocked')

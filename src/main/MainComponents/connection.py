@@ -1,7 +1,7 @@
 # install dnspython: pip install dnspython
 import subprocess
 import requests
-from src.main.MainComponents.LocalStorage import LocalStorage
+from src.main.MainComponents.LocalStorage import AppStorage
 
 class Connection:
     '''
@@ -19,7 +19,7 @@ class Connection:
         For Domains - 0 if the connection can established, 1 otherwise.
     '''
 
-    def __init__(self, domain_ip = None, domain_url = None, url_type = None, storage :LocalStorage = None):
+    def __init__(self, domain_ip = None, domain_url = None, url_type = None, storage :AppStorage = None):
         '''
         Initializes the Connection class.
         NOTE: If domain_ip and domain_url is both not None, domain_ip will be prioritized.
