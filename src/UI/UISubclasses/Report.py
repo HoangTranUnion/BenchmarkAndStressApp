@@ -25,6 +25,8 @@ class Report(QtWidgets.QMainWindow, ReportUI.Ui_MainWindow):
             self.pushButton.clicked.connect(lambda: self.save_result(self))
 
             self._setup_table_view()
+
+            self.report_saved = False
         except Exception as e:
             print(e)
 
@@ -103,15 +105,19 @@ class Report(QtWidgets.QMainWindow, ReportUI.Ui_MainWindow):
 
 
             wb.save(full_report_dir)
+            self.report_saved = True
             MainWindow.close()
 
     def closeEvent(self, a0):
-        quit_msg = "Do you want to save the report before exiting?"
-        reply = QtWidgets.QMessageBox.question(self, 'Message',
-                                               quit_msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
+        if not self.report_saved:
+            quit_msg = "Do you want to save the report before exiting?"
+            reply = QtWidgets.QMessageBox.question(self, 'Message',
+                                                   quit_msg, QtWidgets.QMessageBox.Yes, QtWidgets.QMessageBox.No)
 
-        if reply == QtWidgets.QMessageBox.Yes:
-            self.save_result(self)
-            a0.ignore()
+            if reply == QtWidgets.QMessageBox.Yes:
+                self.save_result(self)
+                a0.ignore()
+            else:
+                a0.accept()
         else:
             a0.accept()
