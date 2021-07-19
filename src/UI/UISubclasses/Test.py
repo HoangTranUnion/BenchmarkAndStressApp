@@ -19,13 +19,11 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         self.setupUi(self)
 
         self.storage = local_storage
-        self.testing_data = self.storage.get_all()
-        self.nameserver_data = self.testing_data[0]
-        self.domain_data = self.testing_data[1]
+        self.nameserver_data = self.storage.get_nameservers()
 
-        self._valid_data = self.domain_data['valid']
-        self._random_data = self.domain_data['random']
-        self._blocked_data = self.domain_data['blocked']
+        self._valid_data = self.storage.get_valid_domains()
+        self._random_data = self.storage.get_random_domains()
+        self._blocked_data = self.storage.get_blocked_domains()
 
         self.pushButton.clicked.connect(self.ping)
         self.pushButton_2.clicked.connect(self.benchmark)

@@ -189,13 +189,13 @@ class AppStorage:
         return self.domains[section]
 
     def get_valid_domains(self):
-        return copy.deepcopy(self.domains['valid'])
+        return self.domains['valid']
 
     def get_random_domains(self):
-        return copy.deepcopy(self.domains['random'])
+        return self.domains['random']
 
     def get_blocked_domains(self):
-        return copy.deepcopy(self.domains['blocked'])
+        return self.domains['blocked']
 
     def get_nameservers(self):
         return self.nameservers
