@@ -15,7 +15,7 @@ class Connection:
     domain_stat = Connection.domain_status(domain, 'domain') # for normal domains
     ```
     :returns
-        For IP - 0 if the IP is active, 1 if the IP is not active, and 2 for errors.
+        For IP and DoH URL - 0 if the IP is active, 1 if the IP is not active, and 2 for errors.
         For Domains - 0 if the connection can established, 1 otherwise.
     '''
 
@@ -40,6 +40,9 @@ class Connection:
         self._url_type = url_type
         if self._domain_url is not None:
             assert self._url_type is not None
+        else:
+            if self._url_type is not None:
+                raise AssertionError("There should be a domain associated with the url type")
         self.storage = storage
 
         self.status = self._check()
