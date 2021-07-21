@@ -82,7 +82,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         self._update_window(self.worker_2)
 
     def ping(self):
-        if self.storage.has_pinged:
+        if self.storage.has_pinged and len(self.storage.pinged_ns) == len(self.storage.get_nameservers()):
             self.error_dialog = QtWidgets.QErrorMessage()
             self.error_dialog.setWindowTitle('Warning')
             self.error_dialog.showMessage('You have already pinged the nameservers.')
@@ -103,7 +103,6 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
         toaster.show_toast(title="Finished pinging!", msg="Please check the app",
                            icon_path=YANFEI_SMUG,
                            duration=5, threaded=True)
-
 
     def benchmark(self):
         if not self.storage.has_pinged:

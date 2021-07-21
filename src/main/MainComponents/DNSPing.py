@@ -23,3 +23,6 @@ class DNSPing:
     def get(self):
         return self._ns_list, self._dns_list
 
+    def __len__(self):
+        return len(self._dns_list)
+
