@@ -33,14 +33,14 @@ class DNS:
         self.storage = storage
         if 'dns_ip' in kwargs and kwargs['dns_ip'] is not None:
             self.dns_info = kwargs['dns_ip']
-            self.status = Connection.ip_status(self.dns_info, self.storage)
+            # self.status = Connection.ip_status(self.dns_info, self.storage)
             self.state = 'ip'
         elif 'dns_url' in kwargs and kwargs['dns_url'] is not None:
             self.dns_info = kwargs['dns_url']
-            try:
-                self.status = Connection.domain_status(self.dns_info,'doh', self.storage)
-            except requests.exceptions:
-                self.status = 1
+            # try:
+            #     self.status = Connection.domain_status(self.dns_info,'doh', self.storage)
+            # except requests.exceptions:
+            #     self.status = 1
             self.state = 'doh'
         else:
             raise KeyError("Keyword not identified")
@@ -95,8 +95,8 @@ class DNS:
         # This causes TypeError: catching classes that do not inherit from BaseException is not allowed
 
         except:
-            if self.status:
-                raise ServerDown("Server is down.")
+            # if self.status:
+            #     raise ServerDown("Server is down.")
             domain_status = Connection.domain_status(domain, 'domain')
             if not domain_status:
                 raise UnableToResolve("Unable to resolve the given domain")
