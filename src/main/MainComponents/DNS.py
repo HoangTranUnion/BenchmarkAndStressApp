@@ -86,17 +86,20 @@ class DNS:
             else:
                 return answer.response.time * 1000
 
-        # Intentional bare except.
-        # dns.exception is not a class that inherits BaseException class
-        # any exception from that usually means that the domain cannot be resolved under the given nameserver.
-
-        # except dns.exception as e:
-        #     print(e)
-        # This causes TypeError: catching classes that do not inherit from BaseException is not allowed
-
-        except:
+        except dns.resolver.NoAnswer:
+            '''
+            Raises ``dns.resolver.NoAnswer`` if *raise_on_no_answer* is
+            ``True`` and the query name exists but has no RRset of the
+            desired type and class.
+            '''
             # if self.status:
             #     raise ServerDown("Server is down.")
+            domain_status = Connection.domain_status(domain, 'domain')
+            if not domain_status:
+                raise UnableToResolve("Unable to resolve the given domain")
+            return "NoAns"
+
+        except dns.exception.DNSException:
             domain_status = Connection.domain_status(domain, 'domain')
             if not domain_status:
                 raise UnableToResolve("Unable to resolve the given domain")
@@ -125,10 +128,16 @@ class DNS:
                     if data_type == 'random':
                         storage.add_random_resolved(domain)
                 else:
-                    line = "{} - Thread {}/{} - Domain {}/{} - {} - timeout ".format(self.dns_info, instance + 1, total_num_inst,
+                    if res == 'NoAns':
+                        line = "{} - Thread {}/{} - Domain {}/{} - {} - no desired RRset".format(self.dns_info, instance + 1, total_num_inst,
                                                              index + 1, len(domain_list), domain)
-                # text_browser.append(line + "\n")
-                # text_browser.show()
+                    else:
+                        line = "{} - Thread {}/{} - Domain {}/{} - {} - timeout".format(self.dns_info,
+                                                                                                  instance + 1,
+                                                                                                  total_num_inst,
+                                                                                                  index + 1,
+                                                                                                  len(domain_list),
+                                                                                                  domain)
                 print(line)
                 storage.cur_string = line
                 index += 1
