@@ -79,7 +79,7 @@ class DNS:
             # - answer.response.time.total_seconds() returns the time in seconds, type: float
             # - int + datetime.timedelta WILL cause TypeError! :PekoraTired:
 
-            answer = my_resolver.resolve(domain, lifetime = 1)
+            answer = my_resolver.resolve(domain)
             time_type = type(answer.response.time)
             if time_type == timedelta:
                 return answer.response.time.total_seconds() * 1000
