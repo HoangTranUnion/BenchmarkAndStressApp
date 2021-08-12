@@ -49,7 +49,7 @@ class Nameserver(QtWidgets.QMainWindow, NameserverMain.Ui_MainWindow):
     def addContent(self, content):
         content_list = content.split(";")
         for c in content_list:
-            stripped_content = c.strip()
+            stripped_content = c.replace(" ", "")
             if len(stripped_content) != 0:
                 cur_data = self.storage.get_nameservers()
                 if stripped_content not in cur_data:

@@ -106,9 +106,9 @@ class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):
             self.dialog.exec_()
 
     def addContent(self, content, section):
-        content.replace(" ","")
         content_list = content.split(";")
         for c in content_list:
+            c = c.replace(" ", "")
             if len(c) != 0:
                 cur_data = self.storage.get_domain_by_section(section)
                 if c not in cur_data:
