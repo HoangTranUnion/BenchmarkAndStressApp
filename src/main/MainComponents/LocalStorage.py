@@ -28,6 +28,8 @@ class AppStorage:
 
         self._cur_string = ""
 
+        self.add_client_id_state = False
+
     @property
     def cur_string(self) -> str:
         return self._cur_string

@@ -13,6 +13,7 @@ class AddNameservers(QtWidgets.QDialog, Ui_Dialog):
         self.setupUi(self)
         self.lineEdit.setMaxLength(10000000)
         self.pushButton_2.clicked.connect(self.selectFiles)
+        self.checkBox.setCheckState(False)
 
     def selectFiles(self):
         fileNames, _ = QtWidgets.QFileDialog.getOpenFileNames()

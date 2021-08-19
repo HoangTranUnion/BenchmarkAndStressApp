@@ -7,7 +7,7 @@
     <x>0</x>
     <y>0</y>
     <width>348</width>
-    <height>173</height>
+    <height>183</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -47,6 +47,19 @@
    </property>
    <property name="text">
     <string>Import Nameservers</string>
+   </property>
+  </widget>
+  <widget class="QCheckBox" name="checkBox">
+   <property name="geometry">
+    <rect>
+     <x>10</x>
+     <y>150</y>
+     <width>331</width>
+     <height>20</height>
+    </rect>
+   </property>
+   <property name="text">
+    <string>Add client IDs for DoH URLs</string>
    </property>
   </widget>
  </widget>

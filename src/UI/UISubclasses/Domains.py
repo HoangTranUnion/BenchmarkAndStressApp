@@ -4,7 +4,7 @@ import random
 from src.UI.GeneratedUI import NewDomainUI, SetDomain, RemoveDifferentDomains, AddDifferentDomains, random_add, ShuffleDomains
 from src.UI.UISubclasses.AddDomains import AddDomains
 from src.main.MainComponents.LocalStorage import AppStorage
-from src.main.MainComponents.DomainRandomizer import domain_random
+from src.main.MainComponents.randomizers import domain_random
 
 
 class Domain(QtWidgets.QMainWindow, NewDomainUI.Ui_MainWindow):

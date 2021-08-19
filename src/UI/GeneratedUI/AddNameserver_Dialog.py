@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_Dialog(object):
     def setupUi(self, Dialog):
         Dialog.setObjectName("Dialog")
-        Dialog.setFixedSize(348, 173)
+        Dialog.resize(348, 183)
         self.lineEdit = QtWidgets.QLineEdit(Dialog)
         self.lineEdit.setGeometry(QtCore.QRect(10, 10, 331, 41))
         self.lineEdit.setObjectName("lineEdit")
@@ -24,6 +24,9 @@ class Ui_Dialog(object):
         self.pushButton_2 = QtWidgets.QPushButton(Dialog)
         self.pushButton_2.setGeometry(QtCore.QRect(10, 100, 331, 31))
         self.pushButton_2.setObjectName("pushButton_2")
+        self.checkBox = QtWidgets.QCheckBox(Dialog)
+        self.checkBox.setGeometry(QtCore.QRect(10, 150, 331, 20))
+        self.checkBox.setObjectName("checkBox")
 
         self.retranslateUi(Dialog)
         QtCore.QMetaObject.connectSlotsByName(Dialog)
@@ -33,6 +36,7 @@ class Ui_Dialog(object):
         Dialog.setWindowTitle(_translate("Dialog", "Add Nameservers"))
         self.pushButton.setText(_translate("Dialog", "Add Nameserver"))
         self.pushButton_2.setText(_translate("Dialog", "Import Nameservers"))
+        self.checkBox.setText(_translate("Dialog", "Add client IDs for DoH URLs"))
 
 
 if __name__ == "__main__":

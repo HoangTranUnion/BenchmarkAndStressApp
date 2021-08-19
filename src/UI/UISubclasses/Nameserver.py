@@ -3,7 +3,7 @@ from PyQt5 import QtCore, QtWidgets
 from src.UI.GeneratedUI import NameserverMain, SetNameserver
 from src.UI.UISubclasses.AddNameservers import AddNameservers
 from src.main.MainComponents.LocalStorage import AppStorage
-
+from src.main.MainComponents.randomizers import client_id_random
 
 class Nameserver(QtWidgets.QMainWindow, NameserverMain.Ui_MainWindow):
     def __init__(self, storage: AppStorage, parent = None):
@@ -25,7 +25,14 @@ class Nameserver(QtWidgets.QMainWindow, NameserverMain.Ui_MainWindow):
         self.window = AddNameservers()
         self.window.setAttribute(QtCore.Qt.WA_DeleteOnClose)
         self.window.pushButton.clicked.connect(lambda: self.addContent(self.window.lineEdit.text()))
+        self.window.checkBox.clicked.connect(lambda: self.set_random_client_id_state(self.window.checkBox))
         self.window.exec_()
+
+    def set_random_client_id_state(self, check_box: QtWidgets.QCheckBox):
+        if check_box.isChecked():
+            self.storage.add_client_id_state = True
+        else:
+            self.storage.add_client_id_state = False
 
     def openDialog(self):
         if len(self.listWidget.selectedItems()) == 0:
@@ -53,8 +60,11 @@ class Nameserver(QtWidgets.QMainWindow, NameserverMain.Ui_MainWindow):
             if len(stripped_content) != 0:
                 cur_data = self.storage.get_nameservers()
                 if stripped_content not in cur_data:
+                    if stripped_content.endswith("/dns-query") and self.storage.add_client_id_state:
+                        stripped_content += "/" + client_id_random()
                     self.listWidget.addItem(stripped_content)
                     self.storage.add_nameserver(stripped_content)
+        self.storage.add_client_id_state = False
         self.window.close()
 
     def modifyContent(self, dialog, content):
