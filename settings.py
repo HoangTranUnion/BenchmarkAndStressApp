@@ -13,6 +13,7 @@ ASSETS_FOLDER = os.path.join(APP_RESOURCES_FOLDER,'assets')
 IMAGE_LOC = os.path.join(ASSETS_FOLDER, 'info-icon-23834 (1).png')
 
 YANFEI_SMUG = os.path.join(ASSETS_FOLDER,'yanfei_smug.ico')
+YANFEI_SMUG_LINUX = os.path.join(ASSETS_FOLDER, 'yanfei_smug.jpg')
 MAIN_SCRIPT = os.path.join(ROOT_FOLDER, 'main.py')
 
 VALID_CONFIG_KEYWORDS = ['instance_count', 'domains_used']

@@ -1,5 +1,5 @@
 __author__ = 'Hoang V. Tran'
-__version__ = '1.2'
+__version__ = '1.3'
 
 from src.main.MainComponents.LocalStorage import AppStorage
 from src.UI.UISubclasses.MainMenu import MainMenu

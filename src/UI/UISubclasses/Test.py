@@ -1,13 +1,11 @@
 from threading import Thread
 from PyQt5 import QtCore, QtGui, QtWidgets
-from win10toast import ToastNotifier
-
-from settings import YANFEI_SMUG
 from src.UI.GeneratedUI import NewTestUI,Stress_Properties, Benchmark_Properties
 from src.UI.UISubclasses import Debug, Report
 from src.main.MainComponents.DNSPing import DNSPing
-from src.main.MainComponents.DNSTest import DNSTest,ValidTest, RandomTest, BlockedTest
+from src.main.MainComponents.DNSTest import ValidTest, RandomTest, BlockedTest
 from src.main.MainComponents.LocalStorage import AppStorage
+from src.main.MainComponents.notifications import send_notification
 
 
 class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
@@ -46,10 +44,9 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
     def openReport(self, purpose:str):
         self.storage.cur_test_state = False
         try:
-            toaster = ToastNotifier()
-            toaster.show_toast(title="Finished {}!".format(purpose + "ing"), msg="Please check the app :smug:",
-                                       icon_path=YANFEI_SMUG,
-                                       duration=15, threaded=True)
+
+            send_notification("Finished {}!".format(purpose + "ing"), "Please check the app :smug:")
+
         except AttributeError:
             pass
         try:
@@ -88,10 +85,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             self.error_dialog.showMessage('You have already pinged the nameservers.')
             self.error_dialog.exec_()
         else:
-            toaster = ToastNotifier()
-            toaster.show_toast(title="Started pinging!", msg="Please wait",
-                               icon_path=YANFEI_SMUG,
-                               duration=5, threaded=True)
+            send_notification("Started pinging!", "Please wait")
 
             self.ping_worker = WorkerPing(self.nameserver_data, self.storage)
             self.ping_worker.start()
@@ -99,10 +93,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             self._update_window(self.ping_worker)
 
     def post_ping(self):
-        toaster = ToastNotifier()
-        toaster.show_toast(title="Finished pinging!", msg="Please check the app",
-                           icon_path=YANFEI_SMUG,
-                           duration=5, threaded=True)
+        send_notification('Finished pinging', 'Please check the app')
 
     def benchmark(self):
         if not self.storage.has_pinged:
@@ -138,11 +129,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
 
         valid_test, random_test, blocked_test = self.modify_data(self.storage.get_config()['domains_used'])
 
-        toaster = ToastNotifier()
-        toaster.show_toast(title="Started benchmarking!", msg="Please wait",
-                                   icon_path=YANFEI_SMUG,
-                                   duration=5, threaded=True)
-
+        send_notification('Start benching', 'Please wait')
 
         self.worker_b = WorkerTest([valid_test, random_test, blocked_test],
                                        self.storage, [1, 1, 1])
@@ -266,10 +253,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             self.instance_count = self.storage.get_config()['instance_count']
 
             try:
-                toaster = ToastNotifier()
-                toaster.show_toast(title="Started stressing!", msg="Please wait",
-                               icon_path=YANFEI_SMUG,
-                               duration=5, threaded=True)
+                send_notification("Start stressing", "Please wait")
             except AttributeError:
                 pass
 
@@ -342,10 +326,7 @@ class Test(QtWidgets.QMainWindow, NewTestUI.Ui_MainWindow):
             self.instance_count = self.storage.get_config()['instance_count']
 
             try:
-                toaster = ToastNotifier()
-                toaster.show_toast(title="Started both tests!", msg="Please wait",
-                               icon_path=YANFEI_SMUG,
-                               duration=5, threaded=True)
+                send_notification('Starting both tests','Please wait')
             except AttributeError:
                 pass
 
