@@ -5,6 +5,13 @@ Some references if you don't know what DNS and DNS over HTTPS (DoH) are:
 - [DNS over HTTPS (DoH)](https://searchsecurity.techtarget.com/definition/DNS-over-HTTPS-DoH)
 
 # Changes
+
+## Version 1.3
+Added notification support for Linux
+
+## Version 1.2
+Added a choice to randomize Client ID for DoH URLs
+
 ## Version 1.1
 - New [Test UI](https://github.com/HoangTranUnion/BenchmarkAndStressApp/blob/master/README_resources/NewTestUI.PNG)! Users would now have to ping the nameservers prior to testing, but it would take significantly less time to run multiple tests than before (that is, if you are testing on a large number of nameservers).
 - Warning dialog after testing will now be more informative - it will show what valid and blocked domain could not be resolved. For random ones, it will show what domains _could_ be resolved (partly because 99% of those domains could not be resolved anyway - that would not be informative).
